@@ -1,0 +1,3946 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PharmaShip Procurement Suite</title>
+  <meta name="description" content="Comprehensive pharmaceutical procurement and purchase order tool with bulk CSV export, catalog search, discount calculation, and price tracking.">
+  <meta property="og:title" content="PharmaShip Procurement Suite">
+  <meta property="og:description" content="Comprehensive pharmaceutical procurement and purchase order tool with bulk CSV export, catalog search, discount calculation, and price tracking.">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <!-- Google Fonts: Poppins (Only external resource allowed) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       CSS VARIABLES & THEMES
+       ========================================================================== */
+    :root {
+      --font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      --font-mono: Consolas, 'Courier New', Courier, monospace;
+
+      /* Light Theme Colors */
+      --bg-body-grad: linear-gradient(135deg, #eef2ff, #f8fafc);
+      --bg-card: rgba(255, 255, 255, 0.88);
+      --bg-card-solid: #ffffff;
+      --bg-sidebar: #ffffff;
+      --border-color: #e2e8f0;
+      --border-subtle: #cbd5e1;
+      --border-dashed: #cbd5e1;
+
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --text-subtle: #94a3b8;
+
+      --input-bg: #ffffff;
+      --input-border: #cbd5e1;
+      --input-focus: #3b82f6;
+
+      --table-header-bg: #f8fafc;
+      --table-border: #e2e8f0;
+      --table-row-hover: #f1f5f9;
+      --table-stripe: #fafbfc;
+
+      /* Accent Colors */
+      --proc-color: #27ae60;
+      --proc-light: rgba(39, 174, 96, 0.08);
+      --proc-border: rgba(39, 174, 96, 0.35);
+
+      --company-color: #8e44ad;
+      --company-light: rgba(142, 68, 173, 0.08);
+      --company-border: rgba(142, 68, 173, 0.35);
+
+      --general-color: #16a085;
+      --general-light: rgba(22, 160, 133, 0.08);
+      --general-border: rgba(22, 160, 133, 0.35);
+
+      --settings-color: #e67e22;
+      --settings-light: rgba(230, 126, 34, 0.08);
+      --settings-border: rgba(230, 126, 34, 0.35);
+
+      --blue-color: #2563eb;
+      --blue-light: rgba(37, 99, 235, 0.08);
+      --blue-border: rgba(37, 99, 235, 0.35);
+
+      --danger-color: #ef4444;
+      --danger-light: rgba(239, 68, 68, 0.08);
+      --danger-border: rgba(239, 68, 68, 0.35);
+
+      --warning-color: #f59e0b;
+      --warning-light: rgba(245, 158, 11, 0.1);
+      --warning-border: rgba(245, 158, 11, 0.4);
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.04);
+      --shadow-dropdown: 0 12px 28px rgba(0, 0, 0, 0.12), 0 4px 10px rgba(0, 0, 0, 0.06);
+
+      --sidebar-width: 240px;
+    }
+
+    /* Dark Mode Overrides */
+    body.dark {
+      --bg-body-grad: linear-gradient(135deg, #0b0f19, #111827);
+      --bg-card: rgba(17, 24, 39, 0.88);
+      --bg-card-solid: #111827;
+      --bg-sidebar: #0f172a;
+      --border-color: #1e293b;
+      --border-subtle: #334155;
+      --border-dashed: #334155;
+
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-subtle: #64748b;
+
+      --input-bg: #1e293b;
+      --input-border: #334155;
+      --input-focus: #60a5fa;
+
+      --table-header-bg: #1e293b;
+      --table-border: #334155;
+      --table-row-hover: #1e293b80;
+      --table-stripe: #131d31;
+
+      --proc-light: rgba(39, 174, 96, 0.15);
+      --company-light: rgba(142, 68, 173, 0.15);
+      --general-light: rgba(22, 160, 133, 0.15);
+      --settings-light: rgba(230, 126, 34, 0.15);
+      --blue-light: rgba(37, 99, 235, 0.15);
+      --danger-light: rgba(239, 68, 68, 0.15);
+      --warning-light: rgba(245, 158, 11, 0.15);
+
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.5);
+      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+      --shadow-lg: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      --shadow-dropdown: 0 12px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    /* Reset & Base */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: var(--bg-body-grad);
+      background-attachment: fixed;
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      font-size: 14px;
+      line-height: 1.5;
+      overflow-x: hidden;
+      transition: background 0.25s ease, color 0.25s ease;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: var(--border-subtle);
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       SIDEBAR
+       ========================================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--bg-sidebar);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      position: fixed;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    .brand-block {
+      padding: 20px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .brand-logo-sq {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 17px;
+      letter-spacing: -0.5px;
+      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.35);
+      flex-shrink: 0;
+    }
+
+    .brand-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-sub {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      letter-spacing: 0.2px;
+    }
+
+    .nav-list {
+      list-style: none;
+      padding: 16px 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .nav-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 10px 12px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-align: left;
+      font-family: inherit;
+      color: var(--text-muted);
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .nav-btn:hover {
+      background: var(--table-row-hover);
+      color: var(--text-main);
+    }
+
+    .nav-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 17px;
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      flex-shrink: 0;
+      transition: all 0.2s ease;
+    }
+
+    .nav-text {
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+
+    .nav-text-primary {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.25;
+    }
+
+    .nav-text-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Active Nav Styling with accent colors */
+    .nav-btn.active {
+      box-shadow: var(--shadow-sm);
+    }
+
+    .nav-btn[data-view="procurement"].active {
+      background: linear-gradient(90deg, var(--proc-light), transparent);
+      border-color: var(--proc-border);
+      border-left: 4px solid var(--proc-color);
+      color: var(--text-main);
+    }
+    .nav-btn[data-view="procurement"].active .nav-icon {
+      background: var(--proc-color);
+      color: #fff;
+      border-color: var(--proc-color);
+    }
+
+    .nav-btn[data-view="company"].active {
+      background: linear-gradient(90deg, var(--company-light), transparent);
+      border-color: var(--company-border);
+      border-left: 4px solid var(--company-color);
+      color: var(--text-main);
+    }
+    .nav-btn[data-view="company"].active .nav-icon {
+      background: var(--company-color);
+      color: #fff;
+      border-color: var(--company-color);
+    }
+
+    .nav-btn[data-view="general"].active {
+      background: linear-gradient(90deg, var(--general-light), transparent);
+      border-color: var(--general-border);
+      border-left: 4px solid var(--general-color);
+      color: var(--text-main);
+    }
+    .nav-btn[data-view="general"].active .nav-icon {
+      background: var(--general-color);
+      color: #fff;
+      border-color: var(--general-color);
+    }
+
+    .nav-btn[data-view="settings"].active {
+      background: linear-gradient(90deg, var(--settings-light), transparent);
+      border-color: var(--settings-border);
+      border-left: 4px solid var(--settings-color);
+      color: var(--text-main);
+    }
+    .nav-btn[data-view="settings"].active .nav-icon {
+      background: var(--settings-color);
+      color: #fff;
+      border-color: var(--settings-color);
+    }
+
+    .sidebar-footer {
+      padding: 14px 16px;
+      font-size: 11.5px;
+      color: var(--text-subtle);
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-weight: 500;
+    }
+
+    /* ==========================================================================
+       MAIN CONTENT
+       ========================================================================== */
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 24px;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+    }
+
+    .app-card {
+      width: 100%;
+      max-width: 900px;
+      background: var(--bg-card);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-radius: 16px;
+      border: 1px solid var(--border-color);
+      box-shadow: var(--shadow-lg);
+      padding: 28px;
+      transition: background 0.25s ease, border-color 0.25s ease;
+    }
+
+    /* Views Fade + Slide Animation */
+    .view-container {
+      display: none;
+      animation: viewFadeSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .view-container.active {
+      display: block;
+    }
+
+    @keyframes viewFadeSlide {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* ==========================================================================
+       HEADER & TITLES
+       ========================================================================== */
+    .view-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 22px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .view-header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .view-header-title h1 {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.4px;
+    }
+
+    .logo-sq-sm {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 15px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .logo-proc {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.35);
+    }
+    .logo-comp {
+      background: linear-gradient(135deg, #8e44ad, #9b59b6);
+      box-shadow: 0 4px 10px rgba(142, 68, 173, 0.35);
+    }
+    .logo-gen {
+      background: linear-gradient(135deg, #16a085, #1abc9c);
+      box-shadow: 0 4px 10px rgba(22, 160, 133, 0.35);
+      font-size: 18px;
+    }
+    .logo-set {
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      box-shadow: 0 4px 10px rgba(230, 126, 34, 0.35);
+      font-size: 18px;
+    }
+
+    /* Dark Mode Toggle Button */
+    .theme-toggle-btn {
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      transition: all 0.2s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .theme-toggle-btn:hover {
+      background: var(--table-row-hover);
+      transform: translateY(-1px);
+    }
+
+    /* ==========================================================================
+       BUYER ID BOXES & STATUSES
+       ========================================================================== */
+    .buyer-id-box {
+      border: 1.5px dashed var(--border-dashed);
+      background: var(--table-stripe);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 20px;
+      transition: all 0.2s ease;
+    }
+    .buyer-id-box.proc-box {
+      border-color: var(--proc-border);
+      background: var(--proc-light);
+    }
+    .buyer-id-box.comp-box {
+      border-color: var(--company-border);
+      background: var(--company-light);
+    }
+    .buyer-id-box.gen-box {
+      border-color: var(--general-border);
+      background: var(--general-light);
+    }
+
+    .buyer-input-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .buyer-label {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 13.5px;
+      white-space: nowrap;
+    }
+
+    .buyer-input {
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      color: var(--text-main);
+      padding: 7px 12px;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 13.5px;
+      max-width: 170px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .buyer-input:focus {
+      outline: none;
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    .buyer-status-text {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #16a34a;
+      display: none;
+      align-items: center;
+      gap: 4px;
+    }
+    .buyer-status-text.visible {
+      display: inline-flex;
+    }
+
+    /* General View Inline Mini Cards inside Buyer Box */
+    .gen-inline-summary {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .mini-card {
+      background: var(--bg-card-solid);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 6px 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      box-shadow: var(--shadow-sm);
+    }
+    .mini-card-label {
+      font-size: 10px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+    }
+    .mini-card-val {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    /* ==========================================================================
+       BUTTONS & INPUTS
+       ========================================================================== */
+    .btn {
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 9px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn:hover:not(:disabled) {
+      transform: translateY(-1.5px);
+      box-shadow: var(--shadow-md);
+    }
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    .btn:disabled {
+      background: #94a3b8 !important;
+      border-color: transparent !important;
+      color: #ffffff !important;
+      cursor: not-allowed;
+      opacity: 0.6;
+      box-shadow: none;
+      transform: none !important;
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, #27ae60, #2ecc71);
+      color: #ffffff;
+    }
+    .btn-green:hover:not(:disabled) {
+      background: linear-gradient(135deg, #219653, #27ae60);
+    }
+
+    .btn-purple {
+      background: linear-gradient(135deg, #8e44ad, #9b59b6);
+      color: #ffffff;
+    }
+    .btn-purple:hover:not(:disabled) {
+      background: linear-gradient(135deg, #7d3c98, #8e44ad);
+    }
+
+    .btn-teal {
+      background: linear-gradient(135deg, #16a085, #1abc9c);
+      color: #ffffff;
+    }
+    .btn-teal:hover:not(:disabled) {
+      background: linear-gradient(135deg, #138d75, #16a085);
+    }
+
+    .btn-orange {
+      background: linear-gradient(135deg, #e67e22, #f39c12);
+      color: #ffffff;
+    }
+    .btn-orange:hover:not(:disabled) {
+      background: linear-gradient(135deg, #d35400, #e67e22);
+    }
+
+    .btn-blue {
+      background: linear-gradient(135deg, #2563eb, #3b82f6);
+      color: #ffffff;
+    }
+    .btn-blue:hover:not(:disabled) {
+      background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    }
+
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626, #ef4444);
+      color: #ffffff;
+    }
+    .btn-danger:hover:not(:disabled) {
+      background: linear-gradient(135deg, #b91c1c, #dc2626);
+    }
+
+    .btn-outline {
+      background: var(--input-bg);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
+    }
+    .btn-outline:hover:not(:disabled) {
+      background: var(--table-row-hover);
+      border-color: var(--text-muted);
+    }
+
+    /* Input Controls */
+    input[type="text"],
+    input[type="number"],
+    select,
+    textarea {
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--text-main);
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    input[type="text"]:focus,
+    input[type="number"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: var(--input-focus);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
+    }
+
+    /* Price Alert Styling */
+    .price-alert,
+    input.price-alert,
+    .last-price-box.price-alert {
+      border-color: var(--danger-color) !important;
+      background: var(--danger-light) !important;
+      color: var(--danger-color) !important;
+      font-weight: 600;
+    }
+
+    /* ==========================================================================
+       SECTION CONTAINERS & TINTS
+       ========================================================================== */
+    .section-box {
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 20px;
+      margin-bottom: 22px;
+      background: var(--bg-card-solid);
+      box-shadow: var(--shadow-sm);
+    }
+    .section-box.tint-purple {
+      border-color: var(--company-border);
+      background: linear-gradient(180deg, var(--company-light) 0%, var(--bg-card-solid) 90px);
+    }
+    .section-box.tint-teal {
+      border-color: var(--general-border);
+      background: linear-gradient(180deg, var(--general-light) 0%, var(--bg-card-solid) 90px);
+    }
+    .section-box.tint-orange {
+      border-color: var(--settings-border);
+      background: linear-gradient(180deg, var(--settings-light) 0%, var(--bg-card-solid) 90px);
+    }
+    .section-box.tint-blue {
+      border-color: var(--blue-border);
+      background: linear-gradient(180deg, var(--blue-light) 0%, var(--bg-card-solid) 90px);
+    }
+
+    .section-heading {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .section-subheading {
+      font-size: 12.5px;
+      color: var(--text-muted);
+      margin-bottom: 14px;
+    }
+
+    .section-divider {
+      height: 1px;
+      background: var(--border-color);
+      margin: 22px 0;
+    }
+
+    /* ==========================================================================
+       TOOLBAR & CLOCK & BADGES
+       ========================================================================== */
+    .proc-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .badge-count {
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+    }
+    .badge-count.active {
+      background: #eff6ff;
+      border-color: #93c5fd;
+      color: #1d4ed8;
+    }
+    body.dark .badge-count.active {
+      background: rgba(37, 99, 235, 0.2);
+      border-color: rgba(96, 165, 250, 0.5);
+      color: #93c5fd;
+    }
+
+    .live-clock-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      padding: 6px 14px;
+      border-radius: 20px;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      animation: pulseGreen 1.8s infinite;
+    }
+    @keyframes pulseGreen {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 6px rgba(34, 197, 94, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+      }
+    }
+
+    .proc-textarea {
+      width: 100%;
+      height: 180px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      padding: 14px;
+      background: var(--input-bg);
+      border: 1px solid var(--input-border);
+      border-radius: 12px;
+      resize: vertical;
+      margin-bottom: 8px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .textarea-hint {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ==========================================================================
+       ALERTS & INFO / ERROR BOXES
+       ========================================================================== */
+    .box-error {
+      background: var(--danger-light);
+      border-left: 4px solid var(--danger-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #dc2626;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-line;
+      margin-bottom: 16px;
+      display: none;
+    }
+    body.dark .box-error {
+      color: #f87171;
+    }
+    .box-error.visible {
+      display: block;
+    }
+
+    .box-info {
+      background: var(--warning-light);
+      border-left: 4px solid var(--warning-color);
+      border-radius: 8px;
+      padding: 12px 16px;
+      color: #b45309;
+      font-size: 13px;
+      line-height: 1.5;
+      margin-bottom: 16px;
+      display: none;
+    }
+    body.dark .box-info {
+      color: #fbbf24;
+    }
+    .box-info.visible {
+      display: block;
+    }
+
+    .selected-info-strip {
+      border: 1.5px dashed;
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 12px;
+      margin-bottom: 14px;
+      display: none;
+    }
+    .selected-info-strip.strip-purple {
+      border-color: var(--company-border);
+      background: var(--company-light);
+      color: var(--company-color);
+    }
+    .selected-info-strip.strip-teal {
+      border-color: var(--general-border);
+      background: var(--general-light);
+      color: var(--general-color);
+    }
+    .selected-info-strip.visible {
+      display: block;
+    }
+
+    .live-price-notice {
+      background: rgba(245, 158, 11, 0.12);
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      color: #b45309;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-top: 8px;
+      display: none;
+    }
+    body.dark .live-price-notice {
+      color: #fbbf24;
+    }
+    .live-price-notice.visible {
+      display: block;
+    }
+
+    /* Format code box in Settings */
+    .format-code-box {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      background: var(--table-header-bg);
+      border: 1px dashed var(--border-color);
+      border-radius: 8px;
+      padding: 10px 14px;
+      color: var(--text-muted);
+      overflow-x: auto;
+      margin-bottom: 14px;
+    }
+
+    /* Storage Status Bar */
+    .storage-status-bar {
+      border-radius: 8px;
+      padding: 10px 14px;
+      font-size: 12.5px;
+      font-weight: 500;
+      margin-top: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .storage-status-bar.status-blocked {
+      background: var(--danger-light);
+      border: 1px solid var(--danger-border);
+      color: #dc2626;
+    }
+    body.dark .storage-status-bar.status-blocked {
+      color: #f87171;
+    }
+    .storage-status-bar.status-saved {
+      background: var(--proc-light);
+      border: 1px solid var(--proc-border);
+      color: #16a34a;
+    }
+    body.dark .storage-status-bar.status-saved {
+      color: #4ade80;
+    }
+    .storage-status-bar.status-empty {
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+    }
+
+    /* ==========================================================================
+       SUMMARY BARS & STAT CARDS
+       ========================================================================== */
+    .summary-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .summary-card {
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-sm);
+    }
+    .summary-card.tint-purple {
+      background: var(--company-light);
+      border-color: var(--company-border);
+    }
+    .summary-card.tint-green {
+      background: var(--proc-light);
+      border-color: var(--proc-border);
+    }
+    .summary-card.tint-teal {
+      background: var(--general-light);
+      border-color: var(--general-border);
+    }
+    .summary-card.tint-orange {
+      background: var(--settings-light);
+      border-color: var(--settings-border);
+    }
+    .summary-card.tint-blue {
+      background: var(--blue-light);
+      border-color: var(--blue-border);
+    }
+
+    .summary-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+    .summary-val {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-main);
+      letter-spacing: -0.3px;
+    }
+
+    /* ==========================================================================
+       TABLES & PREVIEWS
+       ========================================================================== */
+    .table-container {
+      border: 1px solid var(--table-border);
+      border-radius: 12px;
+      overflow: hidden;
+      background: var(--bg-card-solid);
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 20px;
+    }
+    .table-scrollable {
+      max-height: 420px;
+      overflow-y: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13px;
+    }
+
+    th {
+      padding: 11px 14px;
+      font-weight: 600;
+      color: var(--text-main);
+      background: var(--table-header-bg);
+      border-bottom: 1px solid var(--table-border);
+      white-space: nowrap;
+    }
+    th.th-purple {
+      background: linear-gradient(135deg, rgba(142, 68, 173, 0.15), rgba(155, 89, 182, 0.12));
+      color: var(--company-color);
+      border-bottom: 1px solid var(--company-border);
+    }
+    th.th-teal {
+      background: linear-gradient(135deg, rgba(22, 160, 133, 0.15), rgba(26, 188, 156, 0.12));
+      color: var(--general-color);
+      border-bottom: 1px solid var(--general-border);
+    }
+    th.th-orange {
+      background: linear-gradient(135deg, rgba(230, 126, 34, 0.15), rgba(243, 156, 18, 0.12));
+      color: var(--settings-color);
+      border-bottom: 1px solid var(--settings-border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    th.th-blue {
+      background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(59, 130, 246, 0.12));
+      color: var(--blue-color);
+      border-bottom: 1px solid var(--blue-border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    td {
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--table-border);
+      color: var(--text-main);
+      vertical-align: middle;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: var(--table-row-hover);
+    }
+
+    td.text-right, th.text-right {
+      text-align: right;
+    }
+    td.text-center, th.text-center {
+      text-align: center;
+    }
+    td.font-mono {
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+    }
+
+    /* Editable cell inputs in cart */
+    .cell-input {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 4px 6px;
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-main);
+      transition: all 0.15s ease;
+    }
+    .cell-input:hover {
+      border-color: var(--border-color);
+      background: var(--input-bg);
+    }
+    .cell-input:focus {
+      outline: none;
+      border-color: var(--input-focus);
+      background: var(--input-bg);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+    }
+
+    .btn-delete-row {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 700;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: all 0.15s ease;
+    }
+    .btn-delete-row:hover {
+      color: var(--danger-color);
+      background: var(--danger-light);
+    }
+
+    .empty-table-msg {
+      padding: 32px 16px;
+      text-align: center;
+      color: var(--text-muted);
+      font-style: italic;
+      font-size: 13.5px;
+    }
+
+    /* ==========================================================================
+       AUTOCOMPLETE DROPDOWN & SEARCH
+       ========================================================================== */
+    .search-wrapper {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-input-box {
+      position: relative;
+      width: 100%;
+    }
+
+    .search-icon-prefix {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    .search-input {
+      width: 100%;
+      padding-left: 36px !important;
+      padding-top: 10px !important;
+      padding-bottom: 10px !important;
+      font-size: 14px;
+    }
+
+    .autocomplete-dropdown {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background: var(--bg-card-solid);
+      border: 1px solid var(--border-color);
+      border-radius: 12px;
+      box-shadow: var(--shadow-dropdown);
+      z-index: 1000;
+      max-height: 380px;
+      overflow-y: auto;
+      display: none;
+    }
+    .autocomplete-dropdown.open {
+      display: block;
+    }
+
+    .autocomplete-hint-strip {
+      padding: 7px 14px;
+      background: var(--table-header-bg);
+      border-bottom: 1px solid var(--border-color);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+    }
+    .autocomplete-hint-strip kbd {
+      background: var(--input-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      padding: 1px 5px;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      box-shadow: 0 1px 0 rgba(0,0,0,0.1);
+    }
+
+    .autocomplete-item {
+      padding: 10px 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-bottom: 1px solid var(--table-border);
+      transition: background 0.15s ease;
+    }
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+    .autocomplete-item:hover,
+    .autocomplete-item.selected-item {
+      background: var(--table-row-hover);
+    }
+
+    .autocomplete-item-main {
+      font-weight: 600;
+      color: var(--text-main);
+      font-size: 13.5px;
+    }
+
+    .autocomplete-item-meta {
+      font-size: 12px;
+      color: var(--text-muted);
+      white-space: nowrap;
+      text-align: right;
+    }
+
+    .autocomplete-empty {
+      padding: 18px 14px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Product Add Form Rows */
+    .product-add-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 12px;
+      margin-top: 14px;
+      flex-wrap: wrap;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+
+    .last-price-box {
+      height: 38px;
+      display: flex;
+      align-items: center;
+      padding: 0 14px;
+      background: var(--table-header-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-main);
+      white-space: nowrap;
+      transition: all 0.2s ease;
+    }
+
+    /* Discount row in Company Purchase */
+    .discount-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .pill-applied {
+      background: var(--company-light);
+      border: 1px solid var(--company-border);
+      color: var(--company-color);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      display: none;
+    }
+    .pill-applied.visible {
+      display: inline-block;
+    }
+
+    .actions-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    /* ==========================================================================
+       TOAST NOTIFICATION
+       ========================================================================== */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      pointer-events: none;
+    }
+
+    .toast {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: #ffffff;
+      padding: 12px 18px;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px -3px rgba(16, 185, 129, 0.4), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-width: 260px;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
+      pointer-events: auto;
+      overflow: hidden;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast-content {
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-progress {
+      height: 3px;
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 2px;
+      overflow: hidden;
+      width: 100%;
+    }
+    .toast-bar {
+      height: 100%;
+      background: #ffffff;
+      width: 100%;
+      transition: width 2s linear;
+    }
+
+    /* ==========================================================================
+       RESPONSIVE DESIGN
+       ========================================================================== */
+    @media (max-width: 900px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        position: sticky;
+        top: 0;
+        bottom: auto;
+        height: auto;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 16px;
+        border-right: none;
+        border-bottom: 1px solid var(--border-color);
+      }
+      .brand-block {
+        padding: 0;
+        border-bottom: none;
+      }
+      .nav-list {
+        flex-direction: row;
+        padding: 0;
+        overflow-x: auto;
+        flex: none;
+      }
+      .nav-btn {
+        padding: 6px 10px;
+        gap: 8px;
+      }
+      .nav-btn.active {
+        border-left: 1px solid transparent;
+        border-bottom: 3px solid;
+      }
+      .nav-text-sub {
+        display: none;
+      }
+      .sidebar-footer {
+        display: none;
+      }
+      .main-wrapper {
+        margin-left: 0;
+        padding: 16px;
+      }
+      .app-card {
+        padding: 20px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .buyer-id-box {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .buyer-input-group {
+        width: 100%;
+      }
+      .buyer-input {
+        max-width: none;
+        flex: 1;
+      }
+      .summary-bar {
+        grid-template-columns: 1fr;
+      }
+      .proc-toolbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .toolbar-left {
+        justify-content: space-between;
+      }
+      .live-clock-wrap {
+        justify-content: center;
+      }
+      .product-add-row {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .product-add-row .btn {
+        width: 100%;
+      }
+      .gen-inline-summary {
+        width: 100%;
+        justify-content: space-between;
+      }
+      .actions-row {
+        flex-direction: column;
+      }
+      .actions-row .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ========================================================================
+       SIDEBAR NAVIGATION
+       ======================================================================== -->
+  <aside class="sidebar">
+    <div class="brand-block">
+      <div class="brand-logo-sq">PS</div>
+      <div class="brand-info">
+        <div class="brand-title">PharmaShip</div>
+        <div class="brand-sub">Procurement Suite</div>
+      </div>
+    </div>
+
+    <ul class="nav-list">
+      <li>
+        <button class="nav-btn active" data-view="procurement" id="nav-procurement">
+          <div class="nav-icon">📋</div>
+          <div class="nav-text">
+            <span class="nav-text-primary">Procurement</span>
+            <span class="nav-text-sub">Bulk CSV</span>
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-view="company" id="nav-company">
+          <div class="nav-icon">🏢</div>
+          <div class="nav-text">
+            <span class="nav-text-primary">Company Purchase</span>
+            <span class="nav-text-sub">Catalog + discount</span>
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-view="general" id="nav-general">
+          <div class="nav-icon">🛒</div>
+          <div class="nav-text">
+            <span class="nav-text-primary">General Purchase</span>
+            <span class="nav-text-sub">Simple entry</span>
+          </div>
+        </button>
+      </li>
+      <li>
+        <button class="nav-btn" data-view="settings" id="nav-settings">
+          <div class="nav-icon">⚙️</div>
+          <div class="nav-text">
+            <span class="nav-text-primary">Settings</span>
+            <span class="nav-text-sub">Catalogs</span>
+          </div>
+        </button>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer">v3.3 · PharmaShip</div>
+  </aside>
+
+  <!-- ========================================================================
+       MAIN APP CARD
+       ======================================================================== -->
+  <main class="main-wrapper">
+    <div class="app-card">
+
+      <!-- ====================================================================
+           VIEW 1: PROCUREMENT (Bulk CSV)
+           ==================================================================== -->
+      <section id="view-procurement" class="view-container active">
+        <div class="view-header">
+          <div class="view-header-title">
+            <div class="logo-sq-sm logo-proc">PS</div>
+            <h1>Procurement</h1>
+          </div>
+          <button class="theme-toggle-btn" id="theme-toggle-btn" title="Toggle Theme" aria-label="Toggle Dark Mode">🌙</button>
+        </div>
+
+        <!-- Buyer ID Box -->
+        <div class="buyer-id-box proc-box">
+          <div class="buyer-input-group">
+            <span class="buyer-label">Buyer ID:</span>
+            <input type="text" id="proc-buyer-input" class="buyer-input" placeholder="e.g. B102" autocomplete="off">
+            <span id="proc-buyer-status" class="buyer-status-text"></span>
+          </div>
+        </div>
+
+        <!-- Toolbar -->
+        <div class="proc-toolbar">
+          <div class="toolbar-left">
+            <button id="proc-download-btn" class="btn btn-green" disabled>⬇ Download CSV</button>
+            <span id="proc-rows-badge" class="badge-count">0 rows</span>
+          </div>
+          <div class="live-clock-wrap">
+            <span class="pulse-dot"></span>
+            <span id="live-digital-clock">--:--:-- - -- --- ----</span>
+          </div>
+        </div>
+
+        <!-- Monospace Textarea -->
+        <textarea id="proc-textarea" class="proc-textarea" placeholder="Paste data: DrugId  Quantity  UnitPrice"></textarea>
+        <div class="textarea-hint">
+          <span>💡</span> Auto-downloads 0.5 seconds after paste when all DrugIds are 5 digits.
+        </div>
+
+        <!-- Error & Info Boxes -->
+        <div id="proc-error-box" class="box-error"></div>
+        <div id="proc-info-box" class="box-info"></div>
+
+        <!-- 3-Column Summary Bar -->
+        <div id="proc-summary-bar" class="summary-bar" style="display: none;">
+          <div class="summary-card tint-green">
+            <span class="summary-label">Rows</span>
+            <span id="proc-sum-rows" class="summary-val">0</span>
+          </div>
+          <div class="summary-card tint-green">
+            <span class="summary-label">Total Quantity</span>
+            <span id="proc-sum-qty" class="summary-val">0</span>
+          </div>
+          <div class="summary-card tint-green">
+            <span class="summary-label">Total Price</span>
+            <span id="proc-sum-price" class="summary-val">৳0.00</span>
+          </div>
+        </div>
+
+        <!-- Preview Table -->
+        <div id="proc-preview-wrapper" class="table-container" style="display: none;">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 50px;">#</th>
+                <th>Drug ID</th>
+                <th class="text-right">Quantity</th>
+                <th class="text-right">Unit Price</th>
+                <th>Buyer ID</th>
+              </tr>
+            </thead>
+            <tbody id="proc-preview-tbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 2: COMPANY PURCHASE
+           ==================================================================== -->
+      <section id="view-company" class="view-container">
+        <div class="view-header">
+          <div class="view-header-title">
+            <div class="logo-sq-sm logo-comp">CP</div>
+            <h1>Company Purchase</h1>
+          </div>
+        </div>
+
+        <!-- Buyer ID Box -->
+        <div class="buyer-id-box comp-box">
+          <div class="buyer-input-group">
+            <span class="buyer-label">Buyer ID:</span>
+            <input type="text" id="comp-buyer-input" class="buyer-input" placeholder="e.g. B102" autocomplete="off">
+            <span id="comp-buyer-status" class="buyer-status-text"></span>
+          </div>
+        </div>
+
+        <!-- Search Product Section -->
+        <div class="section-box tint-purple">
+          <div class="section-heading">Search Product</div>
+          <div class="search-wrapper" id="comp-search-wrapper">
+            <div class="search-input-box">
+              <span class="search-icon-prefix">🔍</span>
+              <input type="text" id="comp-search-input" class="search-input" placeholder="Search by name, generic, or manufacturer..." autocomplete="off">
+            </div>
+            <!-- Live Autocomplete Dropdown -->
+            <div id="comp-autocomplete-dropdown" class="autocomplete-dropdown">
+              <div class="autocomplete-hint-strip">
+                <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span>
+                <span><kbd>Enter</kbd> Select</span>
+                <span><kbd>Esc</kbd> Close</span>
+              </div>
+              <div id="comp-autocomplete-list"></div>
+            </div>
+          </div>
+
+          <!-- Selected Info Strip -->
+          <div id="comp-selected-strip" class="selected-info-strip strip-purple"></div>
+
+          <!-- Add Product Fields -->
+          <div class="product-add-row">
+            <div class="field-group" style="width: 140px;">
+              <label class="field-label" for="comp-qty-input">Quantity</label>
+              <input type="number" id="comp-qty-input" min="1" value="1">
+            </div>
+            <button id="comp-add-btn" class="btn btn-purple" disabled>➕ Add Product</button>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Products & Discount Heading -->
+        <div class="section-heading">Products & Discount</div>
+
+        <div class="discount-row">
+          <div class="field-group" style="width: 150px;">
+            <label class="field-label" for="comp-discount-input">Discount %</label>
+            <input type="number" id="comp-discount-input" min="0" max="100" step="0.01" value="0">
+          </div>
+          <button id="comp-apply-discount-btn" class="btn btn-outline" style="margin-top: 20px;">Apply to All</button>
+          <span id="comp-applied-pill" class="pill-applied" style="margin-top: 20px;">Applied: 0%</span>
+        </div>
+
+        <!-- Cart Table -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="th-purple" style="width: 40px;">#</th>
+                <th class="th-purple">Product Name</th>
+                <th class="th-purple">Company</th>
+                <th class="th-purple text-right" style="width: 90px;">MRP</th>
+                <th class="th-purple text-right" style="width: 80px;">Qty</th>
+                <th class="th-purple text-right" style="width: 75px;">Disc %</th>
+                <th class="th-purple text-right" style="width: 95px;">Unit Price</th>
+                <th class="th-purple text-right" style="width: 105px;">Total</th>
+                <th class="th-purple text-center" style="width: 45px;">✕</th>
+              </tr>
+            </thead>
+            <tbody id="comp-cart-tbody">
+              <tr id="comp-cart-empty-row"><td colspan="9" class="empty-table-msg">No products added.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Summary Bar -->
+        <div class="summary-bar">
+          <div class="summary-card tint-purple">
+            <span class="summary-label">Products</span>
+            <span id="comp-sum-products" class="summary-val">0</span>
+          </div>
+          <div class="summary-card tint-purple">
+            <span class="summary-label">Total Quantity</span>
+            <span id="comp-sum-qty" class="summary-val">0</span>
+          </div>
+          <div class="summary-card tint-purple">
+            <span class="summary-label">Total Amount</span>
+            <span id="comp-sum-amount" class="summary-val">৳0.00</span>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions-row">
+          <button id="comp-reset-btn" class="btn btn-outline">Reset</button>
+          <button id="comp-download-btn" class="btn btn-purple" disabled>⬇ Download CSV</button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 3: GENERAL PURCHASE
+           ==================================================================== -->
+      <section id="view-general" class="view-container">
+        <div class="view-header">
+          <div class="view-header-title">
+            <div class="logo-sq-sm logo-gen">🛒</div>
+            <h1>General Purchase</h1>
+          </div>
+        </div>
+
+        <!-- Buyer ID Box with Compact Inline Summary -->
+        <div class="buyer-id-box gen-box">
+          <div class="buyer-input-group">
+            <span class="buyer-label">Buyer ID:</span>
+            <input type="text" id="gen-buyer-input" class="buyer-input" placeholder="e.g. B102" autocomplete="off">
+            <span id="gen-buyer-status" class="buyer-status-text"></span>
+          </div>
+          <div class="gen-inline-summary">
+            <div class="mini-card">
+              <span class="mini-card-label">Products</span>
+              <span id="gen-mini-products" class="mini-card-val">0</span>
+            </div>
+            <div class="mini-card">
+              <span class="mini-card-label">Quantity</span>
+              <span id="gen-mini-qty" class="mini-card-val">0</span>
+            </div>
+            <div class="mini-card">
+              <span class="mini-card-label">Total</span>
+              <span id="gen-mini-total" class="mini-card-val">৳0.00</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Search Product Section -->
+        <div class="section-box tint-teal">
+          <div class="section-heading">Search Product</div>
+          <div class="search-wrapper" id="gen-search-wrapper">
+            <div class="search-input-box">
+              <span class="search-icon-prefix">🔍</span>
+              <input type="text" id="gen-search-input" class="search-input" placeholder="Search by name, generic, or manufacturer..." autocomplete="off">
+            </div>
+            <!-- Live Autocomplete Dropdown -->
+            <div id="gen-autocomplete-dropdown" class="autocomplete-dropdown">
+              <div class="autocomplete-hint-strip">
+                <span><kbd>↑</kbd> <kbd>↓</kbd> Navigate</span>
+                <span><kbd>Enter</kbd> Select</span>
+                <span><kbd>Esc</kbd> Close</span>
+              </div>
+              <div id="gen-autocomplete-list"></div>
+            </div>
+          </div>
+
+          <!-- Selected Info Strip -->
+          <div id="gen-selected-strip" class="selected-info-strip strip-teal"></div>
+          <!-- Live price override notice strip -->
+          <div id="gen-live-notice-strip" class="live-price-notice">
+            ⚠️ Live last price in use (entered in this session on <span id="gen-live-notice-date">--/--/----</span>) — overrides uploaded CSV.
+          </div>
+
+          <!-- Fields row: Qty -> Unit Price -> Last Price box -> Add btn -->
+          <div class="product-add-row">
+            <div class="field-group" style="width: 110px;">
+              <label class="field-label" for="gen-qty-input">Quantity</label>
+              <input type="number" id="gen-qty-input" min="1" value="1">
+            </div>
+            <div class="field-group" style="width: 140px;">
+              <label class="field-label" for="gen-price-input">Unit Price</label>
+              <input type="number" id="gen-price-input" step="0.01" placeholder="0.00">
+            </div>
+            <div class="field-group">
+              <label class="field-label">💾 Last Price</label>
+              <div id="gen-last-price-display" class="last-price-box">৳0.00</div>
+            </div>
+            <button id="gen-add-btn" class="btn btn-teal" disabled>➕ Add Product</button>
+          </div>
+        </div>
+
+        <div class="section-divider"></div>
+
+        <!-- Products Heading -->
+        <div class="section-heading">Products</div>
+
+        <!-- Cart Table -->
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th class="th-teal" style="width: 40px;">#</th>
+                <th class="th-teal">Product Name</th>
+                <th class="th-teal text-right" style="width: 90px;">Qty</th>
+                <th class="th-teal text-right" style="width: 110px;">Unit Price</th>
+                <th class="th-teal text-right" style="width: 110px;">Last Price</th>
+                <th class="th-teal text-right" style="width: 120px;">Total</th>
+                <th class="th-teal text-center" style="width: 45px;">✕</th>
+              </tr>
+            </thead>
+            <tbody id="gen-cart-tbody">
+              <tr id="gen-cart-empty-row"><td colspan="7" class="empty-table-msg">No products added.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Actions -->
+        <div class="actions-row">
+          <button id="gen-reset-btn" class="btn btn-outline">Reset</button>
+          <button id="gen-download-btn" class="btn btn-teal" disabled>⬇ Download CSV</button>
+        </div>
+      </section>
+
+      <!-- ====================================================================
+           VIEW 4: SETTINGS
+           ==================================================================== -->
+      <section id="view-settings" class="view-container">
+        <div class="view-header">
+          <div class="view-header-title">
+            <div class="logo-sq-sm logo-set">⚙️</div>
+            <h1>Settings</h1>
+          </div>
+          <!-- Quick Load Demo Data Button -->
+          <button id="settings-load-demo-btn" class="btn btn-outline" style="font-size: 12px; padding: 6px 12px;" title="Load sample demo products & price data">✨ Load Demo Data</button>
+        </div>
+
+        <!-- SECTION A: PRODUCT CATALOG -->
+        <div class="section-box tint-orange">
+          <div class="section-heading">📦 Product Catalog</div>
+          <div class="section-subheading">Master product list used in Company &amp; General Purchase.</div>
+
+          <div class="format-code-box">
+            Drug ID, Drug Name, Generic Name, Manufacturer name, MRP, Unit, DrugForm, Min Order Qty, Max Order Qty, Low Demand
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px;">
+            <input type="file" id="catalog-file-input" accept=".csv" style="display: none;">
+            <button id="catalog-load-btn" class="btn btn-orange">📥 Load Catalog</button>
+            <button id="catalog-clear-btn" class="btn btn-danger">🗑 Clear Catalog</button>
+          </div>
+
+          <div id="catalog-info-box" class="box-info"></div>
+
+          <!-- 3 Stat Cards -->
+          <div class="summary-bar" style="margin-bottom: 14px;">
+            <div class="summary-card tint-orange">
+              <span class="summary-label">Total Products</span>
+              <span id="cat-stat-products" class="summary-val">0</span>
+            </div>
+            <div class="summary-card tint-orange">
+              <span class="summary-label">Companies</span>
+              <span id="cat-stat-companies" class="summary-val">0</span>
+            </div>
+            <div class="summary-card tint-orange">
+              <span class="summary-label">Drug Forms</span>
+              <span id="cat-stat-forms" class="summary-val">0</span>
+            </div>
+          </div>
+
+          <!-- Catalog Table -->
+          <div class="table-container table-scrollable">
+            <table>
+              <thead>
+                <tr>
+                  <th class="th-orange" style="width: 40px;">#</th>
+                  <th class="th-orange">Drug ID</th>
+                  <th class="th-orange">Drug Name</th>
+                  <th class="th-orange">Generic Name</th>
+                  <th class="th-orange">Manufacturer</th>
+                  <th class="th-orange text-right">MRP</th>
+                  <th class="th-orange">Form</th>
+                  <th class="th-orange">Unit</th>
+                </tr>
+              </thead>
+              <tbody id="catalog-tbody">
+                <tr><td colspan="8" class="empty-table-msg">No catalog loaded.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="catalog-storage-status" class="storage-status-bar status-empty">
+            No catalog stored yet. Upload a CSV to save it automatically.
+          </div>
+        </div>
+
+        <!-- SECTION B: LAST PURCHASE PRICE DATA -->
+        <div class="section-box tint-blue">
+          <div class="section-heading">💾 Last Purchase Price Data</div>
+          <div class="section-subheading">Used in General Purchase to show each product's last purchase price. Live entries override this data.</div>
+
+          <div class="format-code-box">
+            Drug ID, Form, Drug Name, Manufacturer, Current Stock, MRP, Is Active, Generic Name, Weighted Average, Discounted Price, Status, Discount Percentage, Last Purchase Date, Last Purchase Price
+          </div>
+
+          <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 14px;">
+            <input type="file" id="lastprice-file-input" accept=".csv" style="display: none;">
+            <button id="lastprice-load-btn" class="btn btn-blue">📥 Load Last Price Data</button>
+            <button id="lastprice-clear-btn" class="btn btn-danger">🗑 Clear Last Price Data</button>
+          </div>
+
+          <div id="lastprice-info-box" class="box-info"></div>
+
+          <!-- 2 Stat Cards -->
+          <div class="summary-bar" style="grid-template-columns: repeat(2, 1fr); margin-bottom: 14px;">
+            <div class="summary-card tint-blue">
+              <span class="summary-label">Records Loaded</span>
+              <span id="lp-stat-records" class="summary-val">0</span>
+            </div>
+            <div class="summary-card tint-blue">
+              <span class="summary-label">Live Overrides</span>
+              <span id="lp-stat-overrides" class="summary-val">0</span>
+            </div>
+          </div>
+
+          <!-- Last Price Table -->
+          <div class="table-container table-scrollable">
+            <table>
+              <thead>
+                <tr>
+                  <th class="th-blue" style="width: 40px;">#</th>
+                  <th class="th-blue">Drug ID</th>
+                  <th class="th-blue">Drug Name</th>
+                  <th class="th-blue">Form</th>
+                  <th class="th-blue">Manufacturer</th>
+                  <th class="th-blue text-right">Last Purchase Price (৳)</th>
+                  <th class="th-blue">Last Purchase Date</th>
+                  <th class="th-blue">Source</th>
+                </tr>
+              </thead>
+              <tbody id="lastprice-tbody">
+                <tr><td colspan="8" class="empty-table-msg">No last price data loaded.</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div id="lastprice-storage-status" class="storage-status-bar status-empty">
+            No last price data stored yet. Upload a CSV to save it automatically.
+          </div>
+        </div>
+
+        <!-- SECTION D: BACKUP & RESTORE -->
+        <div class="section-box">
+          <div class="section-heading">💾 Backup &amp; Restore</div>
+          <div class="section-subheading">If your browser blocks automatic storage (e.g. opening the file directly), use this to save/restore your catalog and last-price data.</div>
+
+          <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+            <button id="backup-export-btn" class="btn btn-blue">⬇ Export Backup (JSON)</button>
+            <input type="file" id="backup-import-file" accept=".json" style="display: none;">
+            <button id="backup-import-btn" class="btn btn-orange">⬆ Import Backup (JSON)</button>
+          </div>
+
+          <div id="backup-info-box" class="box-info" style="margin-top: 14px;"></div>
+        </div>
+
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ========================================================================
+       TOAST NOTIFICATION COMPONENT
+       ======================================================================== -->
+  <div class="toast-container">
+    <div id="app-toast" class="toast">
+      <div class="toast-content">
+        <span id="toast-icon">✅</span>
+        <span id="toast-text">Success</span>
+      </div>
+      <div class="toast-progress">
+        <div id="toast-bar" class="toast-bar"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       VANILLA JAVASCRIPT APPLICATION LOGIC
+       ======================================================================== -->
+  <script>
+    (function () {
+      'use strict';
+
+      /* ======================================================================
+         1. STORAGE HELPER (Safe localStorage abstraction)
+         ====================================================================== */
+      const StorageHelper = {
+        isAvailable: false,
+        testStorage() {
+          try {
+            const testKey = '__ps_storage_test__';
+            localStorage.setItem(testKey, '1');
+            localStorage.removeItem(testKey);
+            this.isAvailable = true;
+          } catch (e) {
+            this.isAvailable = false;
+          }
+          return this.isAvailable;
+        },
+        get(key, defaultValue = null) {
+          if (!this.isAvailable) return defaultValue;
+          try {
+            const val = localStorage.getItem(key);
+            if (val === null) return defaultValue;
+            return JSON.parse(val);
+          } catch (e) {
+            return defaultValue;
+          }
+        },
+        set(key, value) {
+          if (!this.isAvailable) return false;
+          try {
+            localStorage.setItem(key, JSON.stringify(value));
+            return true;
+          } catch (e) {
+            return false;
+          }
+        },
+        remove(key) {
+          if (!this.isAvailable) return;
+          try {
+            localStorage.removeItem(key);
+          } catch (e) {}
+        }
+      };
+
+      StorageHelper.testStorage();
+
+      /* Storage Keys */
+      const KEYS = {
+        THEME: 'pharmaship_theme',
+        PROC_BUYER: 'pharmaship_procurement_buyer_id',
+        COMP_BUYER: 'pharmaship_company_buyer_id',
+        GEN_BUYER: 'pharmaship_general_buyer_id',
+        CATALOG: 'pharmaship_catalog',
+        LAST_PRICES: 'pharmaship_last_prices',
+        LIVE_OVERRIDES: 'pharmaship_live_overrides'
+      };
+
+      /* ======================================================================
+         2. APPLICATION STATE
+         ====================================================================== */
+      const state = {
+        activeView: 'procurement',
+        theme: StorageHelper.get(KEYS.THEME, 'light'),
+
+        // View 1: Procurement
+        procBuyerId: StorageHelper.get(KEYS.PROC_BUYER, ''),
+        procParsedRows: [],
+        procLastDownloadedSnapshot: '',
+        procDebounceTimer: null,
+
+        // Master Data
+        catalog: StorageHelper.get(KEYS.CATALOG, []) || [],
+        lastPrices: StorageHelper.get(KEYS.LAST_PRICES, {}) || {}, // keyed by uppercase Drug ID
+        liveOverrides: StorageHelper.get(KEYS.LIVE_OVERRIDES, {}) || {}, // keyed by uppercase Drug ID
+
+        // View 2: Company Purchase
+        compBuyerId: StorageHelper.get(KEYS.COMP_BUYER, ''),
+        compSelectedProduct: null,
+        compDiscount: 0,
+        compCart: [],
+        compHighlightedIndex: 0,
+        compSearchResults: [],
+
+        // View 3: General Purchase
+        genBuyerId: StorageHelper.get(KEYS.GEN_BUYER, ''),
+        genSelectedProduct: null,
+        genCart: [],
+        genHighlightedIndex: 0,
+        genSearchResults: []
+      };
+
+      /* ======================================================================
+         3. UTILITIES & ESCAPING
+         ====================================================================== */
+      function escapeHTML(str) {
+        if (str === null || str === undefined) return '';
+        return String(str)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;')
+          .replace(/'/g, '&#039;');
+      }
+
+      function formatNumber(num, decimals = 2) {
+        const val = Number(num);
+        if (isNaN(val)) return '0.00';
+        return val.toLocaleString('en-US', {
+          minimumFractionDigits: decimals,
+          maximumFractionDigits: decimals
+        });
+      }
+
+      function formatQty(num) {
+        const val = Number(num);
+        if (isNaN(val)) return '0';
+        return val.toLocaleString('en-US');
+      }
+
+      function getFormattedDateTime(d = new Date()) {
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        const DD = String(d.getDate()).padStart(2, '0');
+        const Month = months[d.getMonth()];
+        const YYYY = d.getFullYear();
+        let hours = d.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const hh = String(hours).padStart(2, '0');
+        const mm = String(d.getMinutes()).padStart(2, '0');
+        const ss = String(d.getSeconds()).padStart(2, '0');
+        return { DD, Month, YYYY, hh, mm, ss, ampm };
+      }
+
+      function getTodayDDMMYYYY(d = new Date()) {
+        const DD = String(d.getDate()).padStart(2, '0');
+        const MM = String(d.getMonth() + 1).padStart(2, '0');
+        const YYYY = d.getFullYear();
+        return `${DD}/${MM}/${YYYY}`;
+      }
+
+      function sanitizeBuyerId(id) {
+        if (!id) return 'UNKNOWN';
+        const cleaned = id.trim().replace(/[^a-zA-Z0-9_-]/g, '_');
+        return cleaned || 'UNKNOWN';
+      }
+
+      /* CSV Downloader: Header, UTF-8 BOM, CRLF, CSV escaping */
+      function downloadCSVFile(filename, rows) {
+        const csvLines = rows.map(row =>
+          row.map(cell => {
+            const str = String(cell !== undefined && cell !== null ? cell : '');
+            if (str.includes(',') || str.includes('"') || str.includes('\n') || str.includes('\r')) {
+              return `"${str.replace(/"/g, '""')}"`;
+            }
+            return str;
+          }).join(',')
+        );
+
+        const csvContent = '\uFEFF' + csvLines.join('\r\n');
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+      }
+
+      /* Robust Quote-Aware CSV/TSV Parser */
+      function parseCSVText(text) {
+        const rows = [];
+        let currentRow = [];
+        let currentCell = '';
+        let insideQuotes = false;
+        const normalized = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+
+        for (let i = 0; i < normalized.length; i++) {
+          const char = normalized[i];
+          const nextChar = normalized[i + 1];
+
+          if (char === '"') {
+            if (insideQuotes && nextChar === '"') {
+              currentCell += '"';
+              i++;
+            } else {
+              insideQuotes = !insideQuotes;
+            }
+          } else if ((char === ',' || char === '\t') && !insideQuotes) {
+            currentRow.push(currentCell.trim());
+            currentCell = '';
+          } else if (char === '\n' && !insideQuotes) {
+            currentRow.push(currentCell.trim());
+            if (currentRow.some(c => c.length > 0)) {
+              rows.push(currentRow);
+            }
+            currentRow = [];
+            currentCell = '';
+          } else {
+            currentCell += char;
+          }
+        }
+
+        if (currentCell.length > 0 || currentRow.length > 0) {
+          currentRow.push(currentCell.trim());
+          if (currentRow.some(c => c.length > 0)) {
+            rows.push(currentRow);
+          }
+        }
+        return rows;
+      }
+
+      /* Toast Notification */
+      let toastTimer = null;
+      function showToast(message, icon = '✅') {
+        const toastEl = document.getElementById('app-toast');
+        const textEl = document.getElementById('toast-text');
+        const iconEl = document.getElementById('toast-icon');
+        const barEl = document.getElementById('toast-bar');
+
+        if (!toastEl || !textEl || !barEl) return;
+
+        if (toastTimer) clearTimeout(toastTimer);
+
+        textEl.textContent = message;
+        iconEl.textContent = icon;
+
+        barEl.style.transition = 'none';
+        barEl.style.width = '100%';
+        toastEl.classList.add('show');
+
+        // Trigger transition next tick
+        requestAnimationFrame(() => {
+          barEl.style.transition = 'width 2s linear';
+          barEl.style.width = '0%';
+        });
+
+        toastTimer = setTimeout(() => {
+          toastEl.classList.remove('show');
+        }, 2000);
+      }
+
+      /* Last Price Helper */
+      function getProductLastPrice(drugId) {
+        const key = String(drugId || '').trim().toUpperCase();
+        if (state.liveOverrides[key]) {
+          return {
+            price: Number(state.liveOverrides[key].price) || 0,
+            date: state.liveOverrides[key].date || '',
+            isLive: true,
+            source: '🟢 Live'
+          };
+        }
+        if (state.lastPrices[key]) {
+          return {
+            price: Number(state.lastPrices[key].lastPurchasePrice) || 0,
+            date: state.lastPrices[key].lastPurchaseDate || '',
+            isLive: false,
+            source: 'CSV'
+          };
+        }
+        return {
+          price: 0,
+          date: '',
+          isLive: false,
+          source: 'None'
+        };
+      }
+
+      /* ======================================================================
+         4. THEME & NAVIGATION
+         ====================================================================== */
+      function applyTheme(theme) {
+        state.theme = theme;
+        const toggleBtn = document.getElementById('theme-toggle-btn');
+        if (theme === 'dark') {
+          document.body.classList.add('dark');
+          if (toggleBtn) toggleBtn.textContent = '☀️';
+        } else {
+          document.body.classList.remove('dark');
+          if (toggleBtn) toggleBtn.textContent = '🌙';
+        }
+        StorageHelper.set(KEYS.THEME, theme);
+      }
+
+      function switchView(viewName) {
+        state.activeView = viewName;
+        document.querySelectorAll('.view-container').forEach(view => {
+          view.classList.remove('active');
+        });
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          btn.classList.remove('active');
+        });
+
+        const targetView = document.getElementById(`view-${viewName}`);
+        const targetBtn = document.getElementById(`nav-${viewName}`);
+        if (targetView) targetView.classList.add('active');
+        if (targetBtn) targetBtn.classList.add('active');
+
+        // Close dropdowns on view change
+        closeCompDropdown();
+        closeGenDropdown();
+      }
+
+      /* ======================================================================
+         5. VIEW 1: PROCUREMENT LOGIC
+         ====================================================================== */
+      const procElements = {
+        buyerInput: document.getElementById('proc-buyer-input'),
+        buyerStatus: document.getElementById('proc-buyer-status'),
+        downloadBtn: document.getElementById('proc-download-btn'),
+        rowsBadge: document.getElementById('proc-rows-badge'),
+        digitalClock: document.getElementById('live-digital-clock'),
+        textarea: document.getElementById('proc-textarea'),
+        errorBox: document.getElementById('proc-error-box'),
+        infoBox: document.getElementById('proc-info-box'),
+        summaryBar: document.getElementById('proc-summary-bar'),
+        sumRows: document.getElementById('proc-sum-rows'),
+        sumQty: document.getElementById('proc-sum-qty'),
+        sumPrice: document.getElementById('proc-sum-price'),
+        previewWrapper: document.getElementById('proc-preview-wrapper'),
+        previewTbody: document.getElementById('proc-preview-tbody')
+      };
+
+      function updateDigitalClock() {
+        if (!procElements.digitalClock) return;
+        const now = new Date();
+        const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+        let hours = now.getHours();
+        hours = hours % 12;
+        hours = hours ? hours : 12;
+        const mm = String(now.getMinutes()).padStart(2, '0');
+        const ss = String(now.getSeconds()).padStart(2, '0');
+        const D = now.getDate();
+        const Month = months[now.getMonth()];
+        const YYYY = now.getFullYear();
+        procElements.digitalClock.textContent = `${hours}:${mm}:${ss} - ${D} ${Month} ${YYYY}`;
+      }
+
+      function parseProcurementInput(triggerAuto = false) {
+        const text = procElements.textarea.value;
+        const buyerId = procElements.buyerInput.value.trim();
+
+        // Update Buyer status display
+        if (buyerId) {
+          procElements.buyerStatus.textContent = `✅ ${buyerId}`;
+          procElements.buyerStatus.classList.add('visible');
+        } else {
+          procElements.buyerStatus.textContent = '';
+          procElements.buyerStatus.classList.remove('visible');
+        }
+
+        // Reset UI feedback
+        procElements.errorBox.classList.remove('visible');
+        procElements.errorBox.textContent = '';
+        procElements.infoBox.classList.remove('visible');
+        procElements.infoBox.textContent = '';
+        procElements.summaryBar.style.display = 'none';
+        procElements.previewWrapper.style.display = 'none';
+        procElements.previewTbody.innerHTML = '';
+        procElements.downloadBtn.disabled = true;
+        procElements.rowsBadge.textContent = '0 rows';
+        procElements.rowsBadge.classList.remove('active');
+        state.procParsedRows = [];
+
+        if (!text.trim()) {
+          return;
+        }
+
+        const lines = text.split(/\r?\n/);
+        const errors = [];
+        const warnings = [];
+        const parsedRows = [];
+        let lineCounter = 0;
+
+        if (!buyerId) {
+          errors.push('Buyer ID required.');
+        }
+
+        for (let i = 0; i < lines.length; i++) {
+          const rawLine = lines[i].trim();
+          if (!rawLine) continue; // ignore blank lines
+          lineCounter++;
+
+          // Split by whitespace, comma, or tab
+          const tokens = rawLine.split(/[\s,\t]+/).filter(t => t.length > 0);
+
+          if (tokens.length < 3) {
+            errors.push(`Line ${lineCounter}: missing values (expected 3)`);
+            continue;
+          }
+
+          if (tokens.length > 3) {
+            warnings.push(`Line ${lineCounter}: extra columns ignored`);
+          }
+
+          const drugId = tokens[0];
+          const qtyVal = Number(tokens[1]);
+          const priceVal = Number(tokens[2]);
+
+          if (isNaN(qtyVal)) {
+            errors.push(`Line ${lineCounter}: quantity must be a positive number`);
+          } else if (qtyVal < 0) {
+            errors.push(`Line ${lineCounter}: quantity cannot be negative`);
+          }
+
+          if (isNaN(priceVal)) {
+            errors.push(`Line ${lineCounter}: unit price must be a positive number`);
+          } else if (priceVal < 0) {
+            errors.push(`Line ${lineCounter}: unit price cannot be negative`);
+          }
+
+          parsedRows.push({
+            drugId,
+            quantity: isNaN(qtyVal) ? 0 : qtyVal,
+            unitPrice: isNaN(priceVal) ? 0 : priceVal,
+            buyerId: buyerId || ''
+          });
+        }
+
+        // Show errors if any
+        if (errors.length > 0) {
+          procElements.errorBox.textContent = errors.join('\n');
+          procElements.errorBox.classList.add('visible');
+          return;
+        }
+
+        if (parsedRows.length === 0) {
+          return;
+        }
+
+        state.procParsedRows = parsedRows;
+        procElements.downloadBtn.disabled = false;
+        procElements.rowsBadge.textContent = `${parsedRows.length} ${parsedRows.length === 1 ? 'row' : 'rows'}`;
+        procElements.rowsBadge.classList.add('active');
+
+        // Check Drug IDs format (must be exactly 5 digits)
+        const invalidDrugIds = [];
+        let allFiveDigits = true;
+        parsedRows.forEach(r => {
+          if (!/^\d{5}$/.test(r.drugId)) {
+            allFiveDigits = false;
+            if (!invalidDrugIds.includes(r.drugId)) {
+              invalidDrugIds.push(r.drugId);
+            }
+          }
+        });
+
+        // Warnings / Info box
+        const infoMessages = [];
+        if (warnings.length > 0) {
+          infoMessages.push(...warnings);
+        }
+        if (!allFiveDigits) {
+          infoMessages.push(`Manual download required — DrugId must be 5 digits. Invalid: ${invalidDrugIds.join(', ')}`);
+        }
+        if (infoMessages.length > 0) {
+          procElements.infoBox.textContent = infoMessages.join('\n');
+          procElements.infoBox.classList.add('visible');
+        }
+
+        // Render Summary
+        let totalQty = 0;
+        let totalPrice = 0;
+        parsedRows.forEach(r => {
+          totalQty += r.quantity;
+          totalPrice += (r.quantity * r.unitPrice);
+        });
+
+        procElements.sumRows.textContent = formatQty(parsedRows.length);
+        procElements.sumQty.textContent = formatQty(totalQty);
+        procElements.sumPrice.textContent = `৳${formatNumber(totalPrice)}`;
+        procElements.summaryBar.style.display = 'grid';
+
+        // Render Preview Table
+        const rowsHtml = parsedRows.map((r, idx) => {
+          const isFive = /^\d{5}$/.test(r.drugId);
+          return `
+            <tr>
+              <td>${idx + 1}</td>
+              <td class="font-mono"><strong>${escapeHTML(r.drugId)}</strong>${isFive ? '' : ' <span title="Drug ID must be 5 digits">⚠️</span>'}</td>
+              <td class="text-right font-mono">${formatQty(r.quantity)}</td>
+              <td class="text-right font-mono">৳${formatNumber(r.unitPrice)}</td>
+              <td>${escapeHTML(r.buyerId)}</td>
+            </tr>
+          `;
+        }).join('');
+
+        procElements.previewTbody.innerHTML = rowsHtml;
+        procElements.previewWrapper.style.display = 'block';
+
+        // Auto Download check
+        if (triggerAuto && allFiveDigits && parsedRows.length > 0) {
+          const snapshot = JSON.stringify(parsedRows);
+          if (snapshot !== state.procLastDownloadedSnapshot) {
+            triggerProcDownload(true);
+          }
+        }
+      }
+
+      function triggerProcDownload(isAuto = false) {
+        if (!state.procParsedRows || state.procParsedRows.length === 0) return;
+        const buyerId = procElements.buyerInput.value.trim();
+        if (!buyerId) {
+          procElements.buyerInput.focus();
+          return;
+        }
+
+        const snapshot = JSON.stringify(state.procParsedRows);
+        state.procLastDownloadedSnapshot = snapshot;
+
+        const dt = getFormattedDateTime();
+        const sanitizedId = sanitizeBuyerId(buyerId);
+        const filename = `PharmaShip_${sanitizedId}_${dt.DD}-${dt.Month}-${dt.YYYY}_${dt.hh}-${dt.mm}-${dt.ss}-${dt.ampm}.csv`;
+
+        const csvRows = [
+          ['DrugId', 'Quantity', 'UnitPrice', 'BuyerId']
+        ];
+        state.procParsedRows.forEach(r => {
+          csvRows.push([r.drugId, r.quantity, r.unitPrice, r.buyerId]);
+        });
+
+        downloadCSVFile(filename, csvRows);
+
+        showToast(isAuto ? '⚡ Auto-downloaded!' : '✅ Downloaded!');
+
+        // Clear everything as requested
+        procElements.textarea.value = '';
+        procElements.summaryBar.style.display = 'none';
+        procElements.previewWrapper.style.display = 'none';
+        procElements.previewTbody.innerHTML = '';
+        procElements.downloadBtn.disabled = true;
+        procElements.rowsBadge.textContent = '0 rows';
+        procElements.rowsBadge.classList.remove('active');
+        procElements.errorBox.classList.remove('visible');
+        procElements.infoBox.classList.remove('visible');
+        state.procParsedRows = [];
+        state.procLastDownloadedSnapshot = '';
+        procElements.textarea.focus();
+      }
+
+      /* ======================================================================
+         6. VIEW 2: COMPANY PURCHASE LOGIC
+         ====================================================================== */
+      const compElements = {
+        buyerInput: document.getElementById('comp-buyer-input'),
+        buyerStatus: document.getElementById('comp-buyer-status'),
+        searchInput: document.getElementById('comp-search-input'),
+        searchWrapper: document.getElementById('comp-search-wrapper'),
+        dropdown: document.getElementById('comp-autocomplete-dropdown'),
+        list: document.getElementById('comp-autocomplete-list'),
+        selectedStrip: document.getElementById('comp-selected-strip'),
+        qtyInput: document.getElementById('comp-qty-input'),
+        addBtn: document.getElementById('comp-add-btn'),
+        discountInput: document.getElementById('comp-discount-input'),
+        applyDiscountBtn: document.getElementById('comp-apply-discount-btn'),
+        appliedPill: document.getElementById('comp-applied-pill'),
+        cartTbody: document.getElementById('comp-cart-tbody'),
+        sumProducts: document.getElementById('comp-sum-products'),
+        sumQty: document.getElementById('comp-sum-qty'),
+        sumAmount: document.getElementById('comp-sum-amount'),
+        downloadBtn: document.getElementById('comp-download-btn'),
+        resetBtn: document.getElementById('comp-reset-btn')
+      };
+
+      function updateCompBuyerStatus() {
+        const id = compElements.buyerInput.value.trim();
+        state.compBuyerId = id;
+        StorageHelper.set(KEYS.COMP_BUYER, id);
+        if (id) {
+          compElements.buyerStatus.textContent = `✅ ${id}`;
+          compElements.buyerStatus.classList.add('visible');
+        } else {
+          compElements.buyerStatus.textContent = '';
+          compElements.buyerStatus.classList.remove('visible');
+        }
+      }
+
+      function searchCatalog(query) {
+        if (!state.catalog || state.catalog.length === 0) {
+          return { emptyCatalog: true, results: [] };
+        }
+        const q = (query || '').trim().toLowerCase();
+        if (!q) return { emptyCatalog: false, results: [] };
+
+        const matched = state.catalog.filter(p => {
+          return (p.drugName && p.drugName.toLowerCase().includes(q)) ||
+                 (p.genericName && p.genericName.toLowerCase().includes(q)) ||
+                 (p.manufacturer && p.manufacturer.toLowerCase().includes(q)) ||
+                 (p.drugId && p.drugId.toLowerCase().includes(q));
+        });
+
+        // Sort: names starting with query first, then alphabetical
+        matched.sort((a, b) => {
+          const aStarts = (a.drugName || '').toLowerCase().startsWith(q);
+          const bStarts = (b.drugName || '').toLowerCase().startsWith(q);
+          if (aStarts && !bStarts) return -1;
+          if (!aStarts && bStarts) return 1;
+          return (a.drugName || '').localeCompare(b.drugName || '');
+        });
+
+        return { emptyCatalog: false, results: matched.slice(0, 20) };
+      }
+
+      function renderCompDropdown() {
+        const { emptyCatalog, results } = searchCatalog(compElements.searchInput.value);
+        state.compSearchResults = results;
+        state.compHighlightedIndex = 0;
+
+        if (emptyCatalog) {
+          compElements.list.innerHTML = `<div class="autocomplete-empty">No catalog loaded. Go to Settings.</div>`;
+          compElements.dropdown.classList.add('open');
+          return;
+        }
+
+        if (results.length === 0) {
+          compElements.dropdown.classList.remove('open');
+          return;
+        }
+
+        compElements.list.innerHTML = results.map((item, idx) => {
+          return `
+            <div class="autocomplete-item ${idx === 0 ? 'selected-item' : ''}" data-index="${idx}">
+              <div class="autocomplete-item-main">${escapeHTML(item.drugName)}</div>
+              <div class="autocomplete-item-meta font-mono">${escapeHTML(item.drugId)} · MRP ৳${formatNumber(item.mrp)} · ${escapeHTML(item.form || '-')} · ${escapeHTML(item.manufacturer || '-')}</div>
+            </div>
+          `;
+        }).join('');
+
+        compElements.dropdown.classList.add('open');
+      }
+
+      function closeCompDropdown() {
+        if (compElements.dropdown) {
+          compElements.dropdown.classList.remove('open');
+        }
+      }
+
+      function selectCompProduct(product) {
+        state.compSelectedProduct = product;
+        closeCompDropdown();
+        compElements.searchInput.value = product.drugName;
+
+        compElements.selectedStrip.innerHTML = `
+          <strong>Selected:</strong> ${escapeHTML(product.drugName)} · ID: ${escapeHTML(product.drugId)} · MRP: ৳${formatNumber(product.mrp)} · ${escapeHTML(product.manufacturer)}
+        `;
+        compElements.selectedStrip.classList.add('visible');
+        compElements.addBtn.disabled = false;
+
+        compElements.qtyInput.focus();
+        compElements.qtyInput.select();
+      }
+
+      function addProductToCompCart() {
+        if (!state.compSelectedProduct) return;
+        const qty = parseInt(compElements.qtyInput.value, 10) || 1;
+        if (qty <= 0) return;
+
+        const p = state.compSelectedProduct;
+        const globalDiscount = state.compDiscount || 0;
+        const existingRow = state.compCart.find(r => r.drugId === p.drugId);
+
+        if (existingRow) {
+          existingRow.qty += qty;
+          existingRow.total = Math.round(existingRow.unitPrice * existingRow.qty * 100) / 100;
+        } else {
+          const unitPrice = Math.round(p.mrp * (1 - globalDiscount / 100) * 100) / 100;
+          const total = Math.round(unitPrice * qty * 100) / 100;
+
+          state.compCart.push({
+            drugId: p.drugId,
+            name: p.drugName,
+            company: p.manufacturer,
+            mrp: p.mrp,
+            qty: qty,
+            discPct: globalDiscount,
+            unitPrice: unitPrice,
+            total: total
+          });
+        }
+
+        // Reset selection
+        state.compSelectedProduct = null;
+        compElements.selectedStrip.classList.remove('visible');
+        compElements.selectedStrip.innerHTML = '';
+        compElements.addBtn.disabled = true;
+        compElements.qtyInput.value = 1;
+        compElements.searchInput.value = '';
+
+        renderCompCart();
+        compElements.searchInput.focus();
+      }
+
+      function applyGlobalDiscount() {
+        let disc = parseFloat(compElements.discountInput.value) || 0;
+        if (disc < 0) disc = 0;
+        if (disc > 100) disc = 100;
+        compElements.discountInput.value = disc;
+        state.compDiscount = disc;
+
+        compElements.appliedPill.textContent = `Applied: ${disc}%`;
+        compElements.appliedPill.classList.add('visible');
+
+        state.compCart.forEach(row => {
+          row.discPct = disc;
+          row.unitPrice = Math.round(row.mrp * (1 - disc / 100) * 100) / 100;
+          row.total = Math.round(row.unitPrice * row.qty * 100) / 100;
+        });
+
+        renderCompCart();
+      }
+
+      function renderCompCart() {
+        if (state.compCart.length === 0) {
+          compElements.cartTbody.innerHTML = `
+            <tr id="comp-cart-empty-row"><td colspan="9" class="empty-table-msg">No products added.</td></tr>
+          `;
+          compElements.sumProducts.textContent = '0';
+          compElements.sumQty.textContent = '0';
+          compElements.sumAmount.textContent = '৳0.00';
+          compElements.downloadBtn.disabled = true;
+          return;
+        }
+
+        let totalQty = 0;
+        let totalAmt = 0;
+
+        const rowsHtml = state.compCart.map((row, idx) => {
+          totalQty += row.qty;
+          totalAmt += row.total;
+
+          return `
+            <tr data-cart-idx="${idx}">
+              <td>${idx + 1}</td>
+              <td><input type="text" class="cell-input comp-edit-name" value="${escapeHTML(row.name)}" data-idx="${idx}"></td>
+              <td><input type="text" class="cell-input comp-edit-company" value="${escapeHTML(row.company)}" data-idx="${idx}"></td>
+              <td class="text-right"><input type="number" step="0.01" min="0" class="cell-input text-right comp-edit-mrp font-mono" value="${row.mrp}" data-idx="${idx}" style="width: 85px;"></td>
+              <td class="text-right"><input type="number" min="1" class="cell-input text-right comp-edit-qty font-mono" value="${row.qty}" data-idx="${idx}" style="width: 70px;"></td>
+              <td class="text-right font-mono">${row.discPct}%</td>
+              <td class="text-right font-mono">৳${formatNumber(row.unitPrice)}</td>
+              <td class="text-right font-mono"><strong>৳${formatNumber(row.total)}</strong></td>
+              <td class="text-center"><button class="btn-delete-row comp-delete-btn" data-idx="${idx}" title="Remove row">✕</button></td>
+            </tr>
+          `;
+        }).join('');
+
+        compElements.cartTbody.innerHTML = rowsHtml;
+        compElements.sumProducts.textContent = formatQty(state.compCart.length);
+        compElements.sumQty.textContent = formatQty(totalQty);
+        compElements.sumAmount.textContent = `৳${formatNumber(totalAmt)}`;
+        compElements.downloadBtn.disabled = false;
+      }
+
+      function downloadCompCSV() {
+        const buyerId = compElements.buyerInput.value.trim();
+        if (!buyerId) {
+          compElements.buyerInput.focus();
+          showToast('Buyer ID is required!', '⚠️');
+          return;
+        }
+        if (state.compCart.length === 0) return;
+
+        const dt = getFormattedDateTime();
+        const sanitizedId = sanitizeBuyerId(buyerId);
+        const filename = `PharmaShip_${sanitizedId}_${dt.DD}-${dt.Month}-${dt.YYYY}_${dt.hh}-${dt.mm}-${dt.ss}-${dt.ampm}.csv`;
+
+        const csvRows = [
+          ['DrugId', 'Quantity', 'UnitPrice', 'BuyerId']
+        ];
+        state.compCart.forEach(r => {
+          csvRows.push([r.drugId, r.qty, r.unitPrice, buyerId]);
+        });
+
+        downloadCSVFile(filename, csvRows);
+        showToast('✅ Downloaded!');
+      }
+
+      function resetCompPurchase() {
+        state.compCart = [];
+        state.compSelectedProduct = null;
+        state.compDiscount = 0;
+        compElements.discountInput.value = 0;
+        compElements.appliedPill.classList.remove('visible');
+        compElements.selectedStrip.classList.remove('visible');
+        compElements.selectedStrip.innerHTML = '';
+        compElements.addBtn.disabled = true;
+        compElements.searchInput.value = '';
+        compElements.qtyInput.value = 1;
+        renderCompCart();
+      }
+
+      /* ======================================================================
+         7. VIEW 3: GENERAL PURCHASE LOGIC
+         ====================================================================== */
+      const genElements = {
+        buyerInput: document.getElementById('gen-buyer-input'),
+        buyerStatus: document.getElementById('gen-buyer-status'),
+        miniProducts: document.getElementById('gen-mini-products'),
+        miniQty: document.getElementById('gen-mini-qty'),
+        miniTotal: document.getElementById('gen-mini-total'),
+        searchInput: document.getElementById('gen-search-input'),
+        searchWrapper: document.getElementById('gen-search-wrapper'),
+        dropdown: document.getElementById('gen-autocomplete-dropdown'),
+        list: document.getElementById('gen-autocomplete-list'),
+        selectedStrip: document.getElementById('gen-selected-strip'),
+        liveNoticeStrip: document.getElementById('gen-live-notice-strip'),
+        liveNoticeDate: document.getElementById('gen-live-notice-date'),
+        qtyInput: document.getElementById('gen-qty-input'),
+        priceInput: document.getElementById('gen-price-input'),
+        lastPriceDisplay: document.getElementById('gen-last-price-display'),
+        addBtn: document.getElementById('gen-add-btn'),
+        cartTbody: document.getElementById('gen-cart-tbody'),
+        downloadBtn: document.getElementById('gen-download-btn'),
+        resetBtn: document.getElementById('gen-reset-btn')
+      };
+
+      function updateGenBuyerStatus() {
+        const id = genElements.buyerInput.value.trim();
+        state.genBuyerId = id;
+        StorageHelper.set(KEYS.GEN_BUYER, id);
+        if (id) {
+          genElements.buyerStatus.textContent = `✅ ${id}`;
+          genElements.buyerStatus.classList.add('visible');
+        } else {
+          genElements.buyerStatus.textContent = '';
+          genElements.buyerStatus.classList.remove('visible');
+        }
+      }
+
+      function renderGenDropdown() {
+        const { emptyCatalog, results } = searchCatalog(genElements.searchInput.value);
+        state.genSearchResults = results;
+        state.genHighlightedIndex = 0;
+
+        if (emptyCatalog) {
+          genElements.list.innerHTML = `<div class="autocomplete-empty">No catalog loaded. Go to Settings.</div>`;
+          genElements.dropdown.classList.add('open');
+          return;
+        }
+
+        if (results.length === 0) {
+          genElements.dropdown.classList.remove('open');
+          return;
+        }
+
+        genElements.list.innerHTML = results.map((item, idx) => {
+          const lpInfo = getProductLastPrice(item.drugId);
+          return `
+            <div class="autocomplete-item ${idx === 0 ? 'selected-item' : ''}" data-index="${idx}">
+              <div class="autocomplete-item-main">${escapeHTML(item.drugName)}</div>
+              <div class="autocomplete-item-meta font-mono">${escapeHTML(item.drugId)} · MRP ৳${formatNumber(item.mrp)} · Last ৳${formatNumber(lpInfo.price)} · ${escapeHTML(item.manufacturer || '-')}</div>
+            </div>
+          `;
+        }).join('');
+
+        genElements.dropdown.classList.add('open');
+      }
+
+      function closeGenDropdown() {
+        if (genElements.dropdown) {
+          genElements.dropdown.classList.remove('open');
+        }
+      }
+
+      function selectGenProduct(product) {
+        state.genSelectedProduct = product;
+        closeGenDropdown();
+        genElements.searchInput.value = product.drugName;
+
+        const lpInfo = getProductLastPrice(product.drugId);
+
+        genElements.selectedStrip.innerHTML = `
+          <strong>Selected:</strong> ${escapeHTML(product.drugName)} · ID: ${escapeHTML(product.drugId)} · MRP: ৳${formatNumber(product.mrp)} · ${escapeHTML(product.manufacturer)}
+        `;
+        genElements.selectedStrip.classList.add('visible');
+
+        // Check if live override in use
+        if (lpInfo.isLive) {
+          genElements.liveNoticeDate.textContent = lpInfo.date || getTodayDDMMYYYY();
+          genElements.liveNoticeStrip.classList.add('visible');
+        } else {
+          genElements.liveNoticeStrip.classList.remove('visible');
+        }
+
+        genElements.lastPriceDisplay.textContent = `৳${formatNumber(lpInfo.price)}`;
+        genElements.lastPriceDisplay.dataset.lastPrice = lpInfo.price;
+
+        genElements.priceInput.value = '';
+        checkGenPriceAlert();
+
+        genElements.addBtn.disabled = false;
+        genElements.qtyInput.focus();
+        genElements.qtyInput.select();
+      }
+
+      function checkGenPriceAlert() {
+        const lastPrice = parseFloat(genElements.lastPriceDisplay.dataset.lastPrice) || 0;
+        const entered = parseFloat(genElements.priceInput.value);
+
+        if (lastPrice > 0 && !isNaN(entered) && entered > 0) {
+          const diff = Math.abs(entered - lastPrice) / lastPrice;
+          if (diff >= 0.01) {
+            genElements.priceInput.classList.add('price-alert');
+            genElements.lastPriceDisplay.classList.add('price-alert');
+            return;
+          }
+        }
+        genElements.priceInput.classList.remove('price-alert');
+        genElements.lastPriceDisplay.classList.remove('price-alert');
+      }
+
+      function addProductToGenCart() {
+        if (!state.genSelectedProduct) return;
+        const qty = parseInt(genElements.qtyInput.value, 10) || 1;
+        const price = parseFloat(genElements.priceInput.value);
+
+        if (qty <= 0 || isNaN(price) || price <= 0) {
+          genElements.priceInput.focus();
+          return;
+        }
+
+        const p = state.genSelectedProduct;
+        const drugIdKey = p.drugId.toUpperCase();
+        const todayDate = getTodayDDMMYYYY();
+
+        // Record entered price as LIVE override
+        state.liveOverrides[drugIdKey] = {
+          price: price,
+          date: todayDate
+        };
+        StorageHelper.set(KEYS.LIVE_OVERRIDES, state.liveOverrides);
+        updateSettingsLastPriceView();
+
+        // Merge into cart: same drugId + same unitPrice -> increase qty; else new row
+        const existingRow = state.genCart.find(r => r.drugId === p.drugId && Math.abs(r.unitPrice - price) < 0.001);
+
+        if (existingRow) {
+          existingRow.qty += qty;
+          existingRow.total = Math.round(existingRow.unitPrice * existingRow.qty * 100) / 100;
+        } else {
+          const total = Math.round(price * qty * 100) / 100;
+          state.genCart.push({
+            drugId: p.drugId,
+            name: p.drugName,
+            qty: qty,
+            unitPrice: price,
+            lastPrice: price, // Now live override is this price
+            total: total
+          });
+        }
+
+        // Reset inputs
+        state.genSelectedProduct = null;
+        genElements.selectedStrip.classList.remove('visible');
+        genElements.selectedStrip.innerHTML = '';
+        genElements.liveNoticeStrip.classList.remove('visible');
+        genElements.qtyInput.value = 1;
+        genElements.priceInput.value = '';
+        genElements.lastPriceDisplay.textContent = '৳0.00';
+        genElements.lastPriceDisplay.dataset.lastPrice = '0';
+        genElements.priceInput.classList.remove('price-alert');
+        genElements.lastPriceDisplay.classList.remove('price-alert');
+        genElements.addBtn.disabled = true;
+        genElements.searchInput.value = '';
+
+        renderGenCart();
+        genElements.searchInput.focus();
+      }
+
+      function renderGenCart() {
+        if (state.genCart.length === 0) {
+          genElements.cartTbody.innerHTML = `
+            <tr id="gen-cart-empty-row"><td colspan="7" class="empty-table-msg">No products added.</td></tr>
+          `;
+          genElements.miniProducts.textContent = '0';
+          genElements.miniQty.textContent = '0';
+          genElements.miniTotal.textContent = '৳0.00';
+          genElements.downloadBtn.disabled = true;
+          return;
+        }
+
+        let totalQty = 0;
+        let totalAmt = 0;
+
+        const rowsHtml = state.genCart.map((row, idx) => {
+          totalQty += row.qty;
+          totalAmt += row.total;
+
+          // Re-evaluate alert compared to current last price
+          const lpInfo = getProductLastPrice(row.drugId);
+          const hasAlert = lpInfo.price > 0 && Math.abs(row.unitPrice - lpInfo.price) / lpInfo.price >= 0.01;
+
+          return `
+            <tr data-cart-idx="${idx}">
+              <td>${idx + 1}</td>
+              <td><input type="text" class="cell-input gen-edit-name" value="${escapeHTML(row.name)}" data-idx="${idx}"></td>
+              <td class="text-right"><input type="number" min="1" class="cell-input text-right gen-edit-qty font-mono" value="${row.qty}" data-idx="${idx}" style="width: 75px;"></td>
+              <td class="text-right"><input type="number" step="0.01" min="0" class="cell-input text-right gen-edit-price font-mono ${hasAlert ? 'price-alert' : ''}" value="${row.unitPrice}" data-idx="${idx}" style="width: 95px;"></td>
+              <td class="text-right font-mono ${hasAlert ? 'price-alert' : ''}">৳${formatNumber(lpInfo.price)}</td>
+              <td class="text-right font-mono"><strong>৳${formatNumber(row.total)}</strong></td>
+              <td class="text-center"><button class="btn-delete-row gen-delete-btn" data-idx="${idx}" title="Remove row">✕</button></td>
+            </tr>
+          `;
+        }).join('');
+
+        genElements.cartTbody.innerHTML = rowsHtml;
+        genElements.miniProducts.textContent = formatQty(state.genCart.length);
+        genElements.miniQty.textContent = formatQty(totalQty);
+        genElements.miniTotal.textContent = `৳${formatNumber(totalAmt)}`;
+        genElements.downloadBtn.disabled = false;
+      }
+
+      function downloadGenCSV() {
+        const buyerId = genElements.buyerInput.value.trim();
+        if (!buyerId) {
+          genElements.buyerInput.focus();
+          showToast('Buyer ID is required!', '⚠️');
+          return;
+        }
+        if (state.genCart.length === 0) return;
+
+        const dt = getFormattedDateTime();
+        const sanitizedId = sanitizeBuyerId(buyerId);
+        const filename = `PharmaShip_${sanitizedId}_${dt.DD}-${dt.Month}-${dt.YYYY}_${dt.hh}-${dt.mm}-${dt.ss}-${dt.ampm}.csv`;
+
+        const csvRows = [
+          ['DrugId', 'Quantity', 'UnitPrice', 'BuyerId']
+        ];
+        state.genCart.forEach(r => {
+          csvRows.push([r.drugId, r.qty, r.unitPrice, buyerId]);
+        });
+
+        downloadCSVFile(filename, csvRows);
+        showToast('✅ Downloaded!');
+      }
+
+      function resetGenPurchase() {
+        state.genCart = [];
+        state.genSelectedProduct = null;
+        genElements.selectedStrip.classList.remove('visible');
+        genElements.selectedStrip.innerHTML = '';
+        genElements.liveNoticeStrip.classList.remove('visible');
+        genElements.qtyInput.value = 1;
+        genElements.priceInput.value = '';
+        genElements.lastPriceDisplay.textContent = '৳0.00';
+        genElements.lastPriceDisplay.dataset.lastPrice = '0';
+        genElements.priceInput.classList.remove('price-alert');
+        genElements.lastPriceDisplay.classList.remove('price-alert');
+        genElements.addBtn.disabled = true;
+        genElements.searchInput.value = '';
+        renderGenCart();
+      }
+
+      /* ======================================================================
+         8. VIEW 4: SETTINGS LOGIC
+         ====================================================================== */
+      const settingsElements = {
+        catalogFileInput: document.getElementById('catalog-file-input'),
+        catalogLoadBtn: document.getElementById('catalog-load-btn'),
+        catalogClearBtn: document.getElementById('catalog-clear-btn'),
+        catalogInfoBox: document.getElementById('catalog-info-box'),
+        catStatProducts: document.getElementById('cat-stat-products'),
+        catStatCompanies: document.getElementById('cat-stat-companies'),
+        catStatForms: document.getElementById('cat-stat-forms'),
+        catalogTbody: document.getElementById('catalog-tbody'),
+        catalogStorageStatus: document.getElementById('catalog-storage-status'),
+
+        lastPriceFileInput: document.getElementById('lastprice-file-input'),
+        lastPriceLoadBtn: document.getElementById('lastprice-load-btn'),
+        lastPriceClearBtn: document.getElementById('lastprice-clear-btn'),
+        lastPriceInfoBox: document.getElementById('lastprice-info-box'),
+        lpStatRecords: document.getElementById('lp-stat-records'),
+        lpStatOverrides: document.getElementById('lp-stat-overrides'),
+        lastPriceTbody: document.getElementById('lastprice-tbody'),
+        lastPriceStorageStatus: document.getElementById('lastprice-storage-status'),
+
+        backupExportBtn: document.getElementById('backup-export-btn'),
+        backupImportFile: document.getElementById('backup-import-file'),
+        backupImportBtn: document.getElementById('backup-import-btn'),
+        backupInfoBox: document.getElementById('backup-info-box'),
+        loadDemoBtn: document.getElementById('settings-load-demo-btn')
+      };
+
+      function updateSettingsCatalogView() {
+        const cat = state.catalog || [];
+        const total = cat.length;
+        const companies = new Set(cat.map(c => c.manufacturer).filter(Boolean)).size;
+        const forms = new Set(cat.map(c => c.form).filter(Boolean)).size;
+
+        settingsElements.catStatProducts.textContent = formatQty(total);
+        settingsElements.catStatCompanies.textContent = formatQty(companies);
+        settingsElements.catStatForms.textContent = formatQty(forms);
+
+        if (total === 0) {
+          settingsElements.catalogTbody.innerHTML = `
+            <tr><td colspan="8" class="empty-table-msg">No catalog loaded.</td></tr>
+          `;
+        } else {
+          // Render first 500 rows for smooth DOM performance
+          const displayLimit = 500;
+          const rowsHtml = cat.slice(0, displayLimit).map((p, idx) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td class="font-mono"><strong>${escapeHTML(p.drugId)}</strong></td>
+              <td>${escapeHTML(p.drugName)}</td>
+              <td>${escapeHTML(p.genericName)}</td>
+              <td>${escapeHTML(p.manufacturer)}</td>
+              <td class="text-right font-mono">৳${formatNumber(p.mrp)}</td>
+              <td>${escapeHTML(p.form)}</td>
+              <td>${escapeHTML(p.unit)}</td>
+            </tr>
+          `).join('');
+
+          settingsElements.catalogTbody.innerHTML = rowsHtml + (total > displayLimit ? `<tr><td colspan="8" class="empty-table-msg">...and ${total - displayLimit} more products loaded.</td></tr>` : '');
+        }
+
+        // Storage status bar
+        if (!StorageHelper.isAvailable) {
+          settingsElements.catalogStorageStatus.className = 'storage-status-bar status-blocked';
+          settingsElements.catalogStorageStatus.innerHTML = '⚠️ Browser storage is blocked for this file. Data will reset when you close the app. Use the Backup &amp; Restore section below.';
+        } else if (total > 0) {
+          settingsElements.catalogStorageStatus.className = 'storage-status-bar status-saved';
+          settingsElements.catalogStorageStatus.innerHTML = `✅ Saved in browser — ${formatQty(total)} products will reload automatically.`;
+        } else {
+          settingsElements.catalogStorageStatus.className = 'storage-status-bar status-empty';
+          settingsElements.catalogStorageStatus.innerHTML = 'No catalog stored yet. Upload a CSV to save it automatically.';
+        }
+      }
+
+      function updateSettingsLastPriceView() {
+        const lpEntries = Object.values(state.lastPrices || {});
+        const loEntries = Object.entries(state.liveOverrides || {});
+
+        settingsElements.lpStatRecords.textContent = formatQty(lpEntries.length);
+        settingsElements.lpStatOverrides.textContent = formatQty(loEntries.length);
+
+        const allRows = [];
+
+        // Add Live Overrides
+        loEntries.forEach(([drugId, lo]) => {
+          const catalogItem = state.catalog.find(p => p.drugId.toUpperCase() === drugId);
+          allRows.push({
+            drugId: drugId,
+            drugName: catalogItem ? catalogItem.drugName : (lo.drugName || 'Live Override Product'),
+            form: catalogItem ? catalogItem.form : '-',
+            manufacturer: catalogItem ? catalogItem.manufacturer : '-',
+            price: lo.price,
+            date: lo.date,
+            source: '🟢 Live'
+          });
+        });
+
+        // Add CSV records
+        lpEntries.forEach(item => {
+          const isOverridden = !!state.liveOverrides[item.drugId];
+          allRows.push({
+            drugId: item.drugId,
+            drugName: item.drugName,
+            form: item.form,
+            manufacturer: item.manufacturer,
+            price: item.lastPurchasePrice,
+            date: item.lastPurchaseDate,
+            source: isOverridden ? '⚠️ CSV (overridden)' : 'CSV'
+          });
+        });
+
+        if (allRows.length === 0) {
+          settingsElements.lastPriceTbody.innerHTML = `
+            <tr><td colspan="8" class="empty-table-msg">No last price data loaded.</td></tr>
+          `;
+        } else {
+          const displayLimit = 500;
+          const rowsHtml = allRows.slice(0, displayLimit).map((r, idx) => `
+            <tr>
+              <td>${idx + 1}</td>
+              <td class="font-mono"><strong>${escapeHTML(r.drugId)}</strong></td>
+              <td>${escapeHTML(r.drugName)}</td>
+              <td>${escapeHTML(r.form)}</td>
+              <td>${escapeHTML(r.manufacturer)}</td>
+              <td class="text-right font-mono">৳${formatNumber(r.price)}</td>
+              <td>${escapeHTML(r.date)}</td>
+              <td><span style="font-weight: 600;">${r.source}</span></td>
+            </tr>
+          `).join('');
+
+          settingsElements.lastPriceTbody.innerHTML = rowsHtml + (allRows.length > displayLimit ? `<tr><td colspan="8" class="empty-table-msg">...and ${allRows.length - displayLimit} more records loaded.</td></tr>` : '');
+        }
+
+        // Storage status bar
+        if (!StorageHelper.isAvailable) {
+          settingsElements.lastPriceStorageStatus.className = 'storage-status-bar status-blocked';
+          settingsElements.lastPriceStorageStatus.innerHTML = '⚠️ Browser storage is blocked for this file. Data will reset when you close the app. Use the Backup &amp; Restore section below.';
+        } else if (lpEntries.length > 0 || loEntries.length > 0) {
+          settingsElements.lastPriceStorageStatus.className = 'storage-status-bar status-saved';
+          settingsElements.lastPriceStorageStatus.innerHTML = `✅ Saved in browser — ${formatQty(lpEntries.length)} CSV records + ${formatQty(loEntries.length)} live overrides will reload automatically.`;
+        } else {
+          settingsElements.lastPriceStorageStatus.className = 'storage-status-bar status-empty';
+          settingsElements.lastPriceStorageStatus.innerHTML = 'No last price data stored yet. Upload a CSV to save it automatically.';
+        }
+      }
+
+      function loadCatalogFromCSV(fileText) {
+        try {
+          const rawRows = parseCSVText(fileText);
+          if (rawRows.length === 0) {
+            showCatalogInfo('File is empty.', false);
+            return;
+          }
+
+          let startIndex = 0;
+          const firstRow = rawRows[0];
+          // Detect header row
+          if (
+            /drug\s*id/i.test(firstRow[0] || '') ||
+            /drug\s*name/i.test(firstRow[1] || '') ||
+            /mrp/i.test(firstRow[4] || '')
+          ) {
+            startIndex = 1;
+          }
+
+          const parsedCatalog = [];
+          for (let i = startIndex; i < rawRows.length; i++) {
+            const cols = rawRows[i];
+            if (cols.length < 10) continue; // Require at least 10 columns
+
+            const drugId = (cols[0] || '').trim();
+            const drugName = (cols[1] || '').trim();
+            const genericName = (cols[2] || '').trim();
+            const manufacturer = (cols[3] || '').trim();
+            const rawMrp = (cols[4] || '').replace(/[^0-9.]/g, '');
+            const mrp = parseFloat(rawMrp);
+            const unit = (cols[5] || '').trim();
+            const form = (cols[6] || '').trim();
+            const minOrderQty = (cols[7] || '').trim();
+            const maxOrderQty = (cols[8] || '').trim();
+            const lowDemand = (cols[9] || '').trim();
+
+            if (!drugId || !drugName || isNaN(mrp) || mrp < 0) {
+              continue;
+            }
+
+            parsedCatalog.push({
+              drugId,
+              drugName,
+              genericName,
+              manufacturer,
+              mrp,
+              unit,
+              form,
+              minOrderQty,
+              maxOrderQty,
+              lowDemand
+            });
+          }
+
+          if (parsedCatalog.length === 0) {
+            showCatalogInfo('No valid products found in CSV. Check required 10 columns and valid MRP.', false);
+            return;
+          }
+
+          state.catalog = parsedCatalog;
+          StorageHelper.set(KEYS.CATALOG, state.catalog);
+          updateSettingsCatalogView();
+          showCatalogInfo(`Successfully loaded ${formatQty(parsedCatalog.length)} products into catalog.`, true);
+          showToast(`✅ Loaded ${parsedCatalog.length} products!`);
+        } catch (e) {
+          showCatalogInfo(`Error reading CSV: ${e.message}`, false);
+        }
+      }
+
+      function showCatalogInfo(msg, isSuccess) {
+        settingsElements.catalogInfoBox.textContent = msg;
+        settingsElements.catalogInfoBox.style.color = isSuccess ? '#16a34a' : '#dc2626';
+        settingsElements.catalogInfoBox.style.background = isSuccess ? 'var(--proc-light)' : 'var(--danger-light)';
+        settingsElements.catalogInfoBox.style.borderLeftColor = isSuccess ? 'var(--proc-color)' : 'var(--danger-color)';
+        settingsElements.catalogInfoBox.classList.add('visible');
+      }
+
+      function clearCatalog() {
+        state.catalog = [];
+        StorageHelper.remove(KEYS.CATALOG);
+        updateSettingsCatalogView();
+
+        // Clear selection in purchase views as required
+        state.compSelectedProduct = null;
+        compElements.selectedStrip.classList.remove('visible');
+        compElements.selectedStrip.innerHTML = '';
+        compElements.addBtn.disabled = true;
+
+        state.genSelectedProduct = null;
+        genElements.selectedStrip.classList.remove('visible');
+        genElements.selectedStrip.innerHTML = '';
+        genElements.addBtn.disabled = true;
+
+        showCatalogInfo('Catalog cleared.', false);
+        showToast('🗑 Catalog cleared');
+      }
+
+      function loadLastPriceFromCSV(fileText) {
+        try {
+          const rawRows = parseCSVText(fileText);
+          if (rawRows.length === 0) {
+            showLastPriceInfo('File is empty.', false);
+            return;
+          }
+
+          let startIndex = 0;
+          const firstRow = rawRows[0];
+          if (
+            /drug\s*id/i.test(firstRow[0] || '') ||
+            /last\s*purchase/i.test(firstRow[13] || '') ||
+            /mrp/i.test(firstRow[5] || '')
+          ) {
+            startIndex = 1;
+          }
+
+          const parsedPrices = {};
+          let count = 0;
+
+          for (let i = startIndex; i < rawRows.length; i++) {
+            const cols = rawRows[i];
+            if (cols.length < 14) continue; // Require at least 14 columns
+
+            const drugId = (cols[0] || '').trim().toUpperCase();
+            if (!drugId) continue;
+
+            const form = (cols[1] || '').trim();
+            const drugName = (cols[2] || '').trim();
+            const manufacturer = (cols[3] || '').trim();
+            const currentStock = (cols[4] || '').trim();
+            const mrp = parseFloat((cols[5] || '').replace(/[^0-9.]/g, '') || 0);
+            const isActive = (cols[6] || '').trim();
+            const genericName = (cols[7] || '').trim();
+            const weightedAverage = (cols[8] || '').trim();
+            const discountedPrice = (cols[9] || '').trim();
+            const status = (cols[10] || '').trim();
+            const discountPct = (cols[11] || '').trim();
+            const lastPurchaseDate = (cols[12] || '').trim();
+            const lastPriceVal = parseFloat((cols[13] || '').replace(/[^0-9.]/g, '') || 0);
+
+            parsedPrices[drugId] = {
+              drugId,
+              form,
+              drugName,
+              manufacturer,
+              currentStock,
+              mrp,
+              isActive,
+              genericName,
+              weightedAverage,
+              discountedPrice,
+              status,
+              discountPct,
+              lastPurchaseDate,
+              lastPurchasePrice: isNaN(lastPriceVal) ? 0 : lastPriceVal
+            };
+            count++;
+          }
+
+          if (count === 0) {
+            showLastPriceInfo('No valid price records found. Expected at least 14 columns.', false);
+            return;
+          }
+
+          state.lastPrices = parsedPrices;
+          StorageHelper.set(KEYS.LAST_PRICES, state.lastPrices);
+          updateSettingsLastPriceView();
+          showLastPriceInfo(`Successfully loaded ${formatQty(count)} last purchase price records.`, true);
+          showToast(`✅ Loaded ${count} price records!`);
+        } catch (e) {
+          showLastPriceInfo(`Error reading CSV: ${e.message}`, false);
+        }
+      }
+
+      function showLastPriceInfo(msg, isSuccess) {
+        settingsElements.lastPriceInfoBox.textContent = msg;
+        settingsElements.lastPriceInfoBox.style.color = isSuccess ? '#16a34a' : '#dc2626';
+        settingsElements.lastPriceInfoBox.style.background = isSuccess ? 'var(--blue-light)' : 'var(--danger-light)';
+        settingsElements.lastPriceInfoBox.style.borderLeftColor = isSuccess ? 'var(--blue-color)' : 'var(--danger-color)';
+        settingsElements.lastPriceInfoBox.classList.add('visible');
+      }
+
+      function clearLastPrices() {
+        state.lastPrices = {};
+        state.liveOverrides = {};
+        StorageHelper.remove(KEYS.LAST_PRICES);
+        StorageHelper.remove(KEYS.LIVE_OVERRIDES);
+        updateSettingsLastPriceView();
+
+        // Reset General Purchase display
+        genElements.lastPriceDisplay.textContent = '৳0.00';
+        genElements.lastPriceDisplay.dataset.lastPrice = '0';
+        genElements.priceInput.classList.remove('price-alert');
+        genElements.lastPriceDisplay.classList.remove('price-alert');
+
+        showLastPriceInfo('Last purchase price data and live overrides cleared.', false);
+        showToast('🗑 Last price data cleared');
+      }
+
+      /* Export & Import Backup (JSON) */
+      function exportBackupJSON() {
+        const dt = getFormattedDateTime();
+        const filename = `PharmaShip_Backup_${dt.DD}-${dt.Month}-${dt.YYYY}.json`;
+
+        const backupData = {
+          catalog: state.catalog,
+          lastPrices: state.lastPrices,
+          liveOverrides: state.liveOverrides,
+          exportedAt: new Date().toISOString()
+        };
+
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 2000);
+        showToast('⬇ Backup exported!');
+      }
+
+      function importBackupJSON(fileText) {
+        try {
+          const parsed = JSON.parse(fileText);
+          if (!parsed || typeof parsed !== 'object') {
+            throw new Error('Invalid JSON format');
+          }
+
+          if (Array.isArray(parsed.catalog)) {
+            state.catalog = parsed.catalog;
+            StorageHelper.set(KEYS.CATALOG, state.catalog);
+          }
+          if (parsed.lastPrices && typeof parsed.lastPrices === 'object') {
+            state.lastPrices = parsed.lastPrices;
+            StorageHelper.set(KEYS.LAST_PRICES, state.lastPrices);
+          }
+          if (parsed.liveOverrides && typeof parsed.liveOverrides === 'object') {
+            state.liveOverrides = parsed.liveOverrides;
+            StorageHelper.set(KEYS.LIVE_OVERRIDES, state.liveOverrides);
+          }
+
+          updateSettingsCatalogView();
+          updateSettingsLastPriceView();
+
+          settingsElements.backupInfoBox.textContent = `✅ Backup restored successfully (${state.catalog.length} products, ${Object.keys(state.lastPrices).length} price records).`;
+          settingsElements.backupInfoBox.style.color = '#16a34a';
+          settingsElements.backupInfoBox.style.background = 'var(--proc-light)';
+          settingsElements.backupInfoBox.style.borderLeftColor = 'var(--proc-color)';
+          settingsElements.backupInfoBox.classList.add('visible');
+
+          showToast('✅ Backup restored!');
+        } catch (e) {
+          settingsElements.backupInfoBox.textContent = `Failed to import backup: ${e.message}`;
+          settingsElements.backupInfoBox.style.color = '#dc2626';
+          settingsElements.backupInfoBox.style.background = 'var(--danger-light)';
+          settingsElements.backupInfoBox.style.borderLeftColor = 'var(--danger-color)';
+          settingsElements.backupInfoBox.classList.add('visible');
+        }
+      }
+
+      /* Sample Demo Data Generator */
+      function loadDemoData() {
+        const sampleCatalog = [
+          { drugId: "10001", drugName: "Napa 500mg Tablet", genericName: "Paracetamol", manufacturer: "Beximco Pharmaceuticals Ltd.", mrp: 1.20, unit: "Strip (10)", form: "Tablet", minOrderQty: "50", maxOrderQty: "5000", lowDemand: "No" },
+          { drugId: "10002", drugName: "Napa Extra 500mg+65mg", genericName: "Paracetamol + Caffeine", manufacturer: "Beximco Pharmaceuticals Ltd.", mrp: 2.50, unit: "Strip (10)", form: "Tablet", minOrderQty: "50", maxOrderQty: "5000", lowDemand: "No" },
+          { drugId: "10003", drugName: "Ace 500mg Tablet", genericName: "Paracetamol", manufacturer: "Square Pharmaceuticals PLC", mrp: 1.20, unit: "Strip (10)", form: "Tablet", minOrderQty: "100", maxOrderQty: "10000", lowDemand: "No" },
+          { drugId: "10004", drugName: "Ace Plus Tablet", genericName: "Paracetamol + Caffeine", manufacturer: "Square Pharmaceuticals PLC", mrp: 2.50, unit: "Strip (10)", form: "Tablet", minOrderQty: "50", maxOrderQty: "5000", lowDemand: "No" },
+          { drugId: "10005", drugName: "Seclo 20mg Capsule", genericName: "Omeprazole", manufacturer: "Square Pharmaceuticals PLC", mrp: 6.00, unit: "Strip (10)", form: "Capsule", minOrderQty: "30", maxOrderQty: "3000", lowDemand: "No" },
+          { drugId: "10006", drugName: "Maxpro 20mg Tablet", genericName: "Esomeprazole", manufacturer: "Renata Limited", mrp: 8.00, unit: "Strip (10)", form: "Tablet", minOrderQty: "40", maxOrderQty: "4000", lowDemand: "No" },
+          { drugId: "10007", drugName: "Monas 10mg Tablet", genericName: "Montelukast", manufacturer: "Acme Laboratories Ltd.", mrp: 16.50, unit: "Strip (10)", form: "Tablet", minOrderQty: "20", maxOrderQty: "2000", lowDemand: "No" },
+          { drugId: "10008", drugName: "Moxaclav 625mg Tablet", genericName: "Amoxicillin + Clavulanic Acid", manufacturer: "Square Pharmaceuticals PLC", mrp: 32.00, unit: "Strip (6)", form: "Tablet", minOrderQty: "10", maxOrderQty: "1000", lowDemand: "No" },
+          { drugId: "10009", drugName: "Azithrocin 500mg Tablet", genericName: "Azithromycin", manufacturer: "Beximco Pharmaceuticals Ltd.", mrp: 35.00, unit: "Strip (3)", form: "Tablet", minOrderQty: "20", maxOrderQty: "1500", lowDemand: "No" },
+          { drugId: "10010", drugName: "Ceevit 250mg Chewable", genericName: "Ascorbic Acid (Vitamin C)", manufacturer: "Square Pharmaceuticals PLC", mrp: 1.75, unit: "Bottle (100)", form: "Tablet", minOrderQty: "10", maxOrderQty: "500", lowDemand: "No" },
+          { drugId: "10011", drugName: "Fexo 120mg Tablet", genericName: "Fexofenadine HCl", manufacturer: "Square Pharmaceuticals PLC", mrp: 9.00, unit: "Strip (10)", form: "Tablet", minOrderQty: "20", maxOrderQty: "2000", lowDemand: "No" },
+          { drugId: "10012", drugName: "Histacin 4mg Tablet", genericName: "Chlorpheniramine Maleate", manufacturer: "Square Pharmaceuticals PLC", mrp: 0.50, unit: "Strip (10)", form: "Tablet", minOrderQty: "50", maxOrderQty: "5000", lowDemand: "No" }
+        ];
+
+        const samplePrices = {
+          "10001": { drugId: "10001", form: "Tablet", drugName: "Napa 500mg Tablet", manufacturer: "Beximco Pharmaceuticals Ltd.", mrp: 1.20, lastPurchaseDate: "15/10/2026", lastPurchasePrice: 1.05 },
+          "10002": { drugId: "10002", form: "Tablet", drugName: "Napa Extra 500mg+65mg", manufacturer: "Beximco Pharmaceuticals Ltd.", mrp: 2.50, lastPurchaseDate: "12/10/2026", lastPurchasePrice: 2.18 },
+          "10003": { drugId: "10003", form: "Tablet", drugName: "Ace 500mg Tablet", manufacturer: "Square Pharmaceuticals PLC", mrp: 1.20, lastPurchaseDate: "18/10/2026", lastPurchasePrice: 1.02 },
+          "10004": { drugId: "10004", form: "Tablet", drugName: "Ace Plus Tablet", manufacturer: "Square Pharmaceuticals PLC", mrp: 2.50, lastPurchaseDate: "10/10/2026", lastPurchasePrice: 2.15 },
+          "10005": { drugId: "10005", form: "Capsule", drugName: "Seclo 20mg Capsule", manufacturer: "Square Pharmaceuticals PLC", mrp: 6.00, lastPurchaseDate: "20/10/2026", lastPurchasePrice: 5.25 },
+          "10006": { drugId: "10006", form: "Tablet", drugName: "Maxpro 20mg Tablet", manufacturer: "Renata Limited", mrp: 8.00, lastPurchaseDate: "22/10/2026", lastPurchasePrice: 7.00 },
+          "10007": { drugId: "10007", form: "Tablet", drugName: "Monas 10mg Tablet", manufacturer: "Acme Laboratories Ltd.", mrp: 16.50, lastPurchaseDate: "19/10/2026", lastPurchasePrice: 14.20 },
+          "10008": { drugId: "10008", form: "Tablet", drugName: "Moxaclav 625mg Tablet", manufacturer: "Square Pharmaceuticals PLC", mrp: 32.00, lastPurchaseDate: "14/10/2026", lastPurchasePrice: 28.50 },
+          "10009": { drugId: "10009", form: "Tablet", drugName: "Azithrocin 500mg Tablet", manufacturer: "Beximco Pharmaceuticals Ltd.", mrp: 35.00, lastPurchaseDate: "11/10/2026", lastPurchasePrice: 30.00 }
+        };
+
+        state.catalog = sampleCatalog;
+        state.lastPrices = samplePrices;
+        StorageHelper.set(KEYS.CATALOG, state.catalog);
+        StorageHelper.set(KEYS.LAST_PRICES, state.lastPrices);
+
+        updateSettingsCatalogView();
+        updateSettingsLastPriceView();
+        showCatalogInfo('✨ Loaded 12 demo products into catalog.', true);
+        showLastPriceInfo('✨ Loaded 9 demo last purchase price records.', true);
+        showToast('✨ Demo data loaded!');
+      }
+
+      /* ======================================================================
+         9. EVENT LISTENERS & INITIALIZATION
+         ====================================================================== */
+      function initEventListeners() {
+        // Navigation Buttons
+        document.querySelectorAll('.nav-btn').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const viewName = btn.dataset.view;
+            if (viewName) switchView(viewName);
+          });
+        });
+
+        // Theme Toggle
+        const themeBtn = document.getElementById('theme-toggle-btn');
+        if (themeBtn) {
+          themeBtn.addEventListener('click', () => {
+            applyTheme(state.theme === 'dark' ? 'light' : 'dark');
+          });
+        }
+
+        // Global Shortcut: Ctrl+S / Cmd+S triggers manual download in current purchase view
+        window.addEventListener('keydown', (e) => {
+          if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+            e.preventDefault();
+            if (state.activeView === 'procurement') {
+              if (!procElements.downloadBtn.disabled) triggerProcDownload(false);
+            } else if (state.activeView === 'company') {
+              if (!compElements.downloadBtn.disabled) downloadCompCSV();
+            } else if (state.activeView === 'general') {
+              if (!genElements.downloadBtn.disabled) downloadGenCSV();
+            }
+          }
+        });
+
+        // --------------------------------------------------------------------
+        // View 1: Procurement Events
+        // --------------------------------------------------------------------
+        procElements.buyerInput.addEventListener('input', (e) => {
+          state.procBuyerId = e.target.value.trim();
+          StorageHelper.set(KEYS.PROC_BUYER, state.procBuyerId);
+          if (procElements.textarea.value.trim()) {
+            parseProcurementInput(false);
+          } else {
+            if (state.procBuyerId) {
+              procElements.buyerStatus.textContent = `✅ ${state.procBuyerId}`;
+              procElements.buyerStatus.classList.add('visible');
+            } else {
+              procElements.buyerStatus.textContent = '';
+              procElements.buyerStatus.classList.remove('visible');
+            }
+          }
+        });
+
+        procElements.textarea.addEventListener('input', () => {
+          if (state.procDebounceTimer) clearTimeout(state.procDebounceTimer);
+          // Parse immediately for validation UI
+          parseProcurementInput(false);
+          // Auto-download after 0.5s debounced
+          state.procDebounceTimer = setTimeout(() => {
+            parseProcurementInput(true);
+          }, 500);
+        });
+
+        procElements.downloadBtn.addEventListener('click', () => {
+          triggerProcDownload(false);
+        });
+
+        // --------------------------------------------------------------------
+        // View 2: Company Purchase Events
+        // --------------------------------------------------------------------
+        compElements.buyerInput.addEventListener('input', updateCompBuyerStatus);
+
+        compElements.searchInput.addEventListener('input', () => {
+          renderCompDropdown();
+        });
+
+        compElements.searchInput.addEventListener('focus', () => {
+          if (compElements.searchInput.value.trim() || state.catalog.length === 0) {
+            renderCompDropdown();
+          }
+        });
+
+        compElements.searchInput.addEventListener('keydown', (e) => {
+          if (!compElements.dropdown.classList.contains('open')) return;
+          const items = compElements.list.querySelectorAll('.autocomplete-item');
+          if (items.length === 0) return;
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            state.compHighlightedIndex = (state.compHighlightedIndex + 1) % items.length;
+            highlightCompItem(items);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            state.compHighlightedIndex = (state.compHighlightedIndex - 1 + items.length) % items.length;
+            highlightCompItem(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (state.compSearchResults[state.compHighlightedIndex]) {
+              selectCompProduct(state.compSearchResults[state.compHighlightedIndex]);
+            }
+          } else if (e.key === 'Escape') {
+            closeCompDropdown();
+          }
+        });
+
+        function highlightCompItem(items) {
+          items.forEach((item, idx) => {
+            if (idx === state.compHighlightedIndex) {
+              item.classList.add('selected-item');
+              item.scrollIntoView({ block: 'nearest' });
+            } else {
+              item.classList.remove('selected-item');
+            }
+          });
+        }
+
+        compElements.list.addEventListener('click', (e) => {
+          const item = e.target.closest('.autocomplete-item');
+          if (item) {
+            const idx = parseInt(item.dataset.index, 10);
+            if (state.compSearchResults[idx]) {
+              selectCompProduct(state.compSearchResults[idx]);
+            }
+          }
+        });
+
+        compElements.qtyInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addProductToCompCart();
+          }
+        });
+
+        compElements.addBtn.addEventListener('click', addProductToCompCart);
+
+        compElements.discountInput.addEventListener('input', () => {
+          let val = parseFloat(compElements.discountInput.value);
+          if (val < 0) compElements.discountInput.value = 0;
+          if (val > 100) compElements.discountInput.value = 100;
+        });
+
+        compElements.applyDiscountBtn.addEventListener('click', applyGlobalDiscount);
+
+        compElements.cartTbody.addEventListener('input', (e) => {
+          const target = e.target;
+          const idx = parseInt(target.dataset.idx, 10);
+          if (isNaN(idx) || !state.compCart[idx]) return;
+
+          if (target.classList.contains('comp-edit-name')) {
+            state.compCart[idx].name = target.value;
+          } else if (target.classList.contains('comp-edit-company')) {
+            state.compCart[idx].company = target.value;
+          } else if (target.classList.contains('comp-edit-mrp')) {
+            const mrp = parseFloat(target.value) || 0;
+            state.compCart[idx].mrp = mrp;
+            state.compCart[idx].unitPrice = Math.round(mrp * (1 - state.compCart[idx].discPct / 100) * 100) / 100;
+            state.compCart[idx].total = Math.round(state.compCart[idx].unitPrice * state.compCart[idx].qty * 100) / 100;
+            renderCompCart();
+          } else if (target.classList.contains('comp-edit-qty')) {
+            const qty = parseInt(target.value, 10) || 1;
+            state.compCart[idx].qty = Math.max(1, qty);
+            state.compCart[idx].total = Math.round(state.compCart[idx].unitPrice * state.compCart[idx].qty * 100) / 100;
+            renderCompCart();
+          }
+        });
+
+        compElements.cartTbody.addEventListener('blur', (e) => {
+          const target = e.target;
+          const idx = parseInt(target.dataset.idx, 10);
+          if (target.classList.contains('comp-edit-name') && !target.value.trim() && state.compCart[idx]) {
+            renderCompCart(); // Reverts empty name
+          }
+        }, true);
+
+        compElements.cartTbody.addEventListener('click', (e) => {
+          const deleteBtn = e.target.closest('.comp-delete-btn');
+          if (deleteBtn) {
+            const idx = parseInt(deleteBtn.dataset.idx, 10);
+            if (!isNaN(idx)) {
+              state.compCart.splice(idx, 1);
+              renderCompCart();
+            }
+          }
+        });
+
+        compElements.downloadBtn.addEventListener('click', downloadCompCSV);
+        compElements.resetBtn.addEventListener('click', resetCompPurchase);
+
+        // --------------------------------------------------------------------
+        // View 3: General Purchase Events
+        // --------------------------------------------------------------------
+        genElements.buyerInput.addEventListener('input', updateGenBuyerStatus);
+
+        genElements.searchInput.addEventListener('input', () => {
+          renderGenDropdown();
+        });
+
+        genElements.searchInput.addEventListener('focus', () => {
+          if (genElements.searchInput.value.trim() || state.catalog.length === 0) {
+            renderGenDropdown();
+          }
+        });
+
+        genElements.searchInput.addEventListener('keydown', (e) => {
+          if (!genElements.dropdown.classList.contains('open')) return;
+          const items = genElements.list.querySelectorAll('.autocomplete-item');
+          if (items.length === 0) return;
+
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            state.genHighlightedIndex = (state.genHighlightedIndex + 1) % items.length;
+            highlightGenItem(items);
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            state.genHighlightedIndex = (state.genHighlightedIndex - 1 + items.length) % items.length;
+            highlightGenItem(items);
+          } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (state.genSearchResults[state.genHighlightedIndex]) {
+              selectGenProduct(state.genSearchResults[state.genHighlightedIndex]);
+            }
+          } else if (e.key === 'Escape') {
+            closeGenDropdown();
+          }
+        });
+
+        function highlightGenItem(items) {
+          items.forEach((item, idx) => {
+            if (idx === state.genHighlightedIndex) {
+              item.classList.add('selected-item');
+              item.scrollIntoView({ block: 'nearest' });
+            } else {
+              item.classList.remove('selected-item');
+            }
+          });
+        }
+
+        genElements.list.addEventListener('click', (e) => {
+          const item = e.target.closest('.autocomplete-item');
+          if (item) {
+            const idx = parseInt(item.dataset.index, 10);
+            if (state.genSearchResults[idx]) {
+              selectGenProduct(state.genSearchResults[idx]);
+            }
+          }
+        });
+
+        genElements.qtyInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            genElements.priceInput.focus();
+            genElements.priceInput.select();
+          }
+        });
+
+        genElements.priceInput.addEventListener('input', checkGenPriceAlert);
+
+        genElements.priceInput.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            addProductToGenCart();
+          }
+        });
+
+        genElements.addBtn.addEventListener('click', addProductToGenCart);
+
+        genElements.cartTbody.addEventListener('input', (e) => {
+          const target = e.target;
+          const idx = parseInt(target.dataset.idx, 10);
+          if (isNaN(idx) || !state.genCart[idx]) return;
+
+          if (target.classList.contains('gen-edit-name')) {
+            state.genCart[idx].name = target.value;
+          } else if (target.classList.contains('gen-edit-qty')) {
+            const qty = parseInt(target.value, 10) || 1;
+            state.genCart[idx].qty = Math.max(1, qty);
+            state.genCart[idx].total = Math.round(state.genCart[idx].unitPrice * state.genCart[idx].qty * 100) / 100;
+            renderGenCart();
+          } else if (target.classList.contains('gen-edit-price')) {
+            const newPrice = parseFloat(target.value) || 0;
+            state.genCart[idx].unitPrice = newPrice;
+            state.genCart[idx].total = Math.round(newPrice * state.genCart[idx].qty * 100) / 100;
+
+            // Live override update on unitPrice edit
+            const drugIdKey = state.genCart[idx].drugId.toUpperCase();
+            state.liveOverrides[drugIdKey] = {
+              price: newPrice,
+              date: getTodayDDMMYYYY()
+            };
+            StorageHelper.set(KEYS.LIVE_OVERRIDES, state.liveOverrides);
+            updateSettingsLastPriceView();
+            renderGenCart();
+          }
+        });
+
+        genElements.cartTbody.addEventListener('click', (e) => {
+          const deleteBtn = e.target.closest('.gen-delete-btn');
+          if (deleteBtn) {
+            const idx = parseInt(deleteBtn.dataset.idx, 10);
+            if (!isNaN(idx)) {
+              state.genCart.splice(idx, 1);
+              renderGenCart();
+            }
+          }
+        });
+
+        genElements.downloadBtn.addEventListener('click', downloadGenCSV);
+        genElements.resetBtn.addEventListener('click', resetGenPurchase);
+
+        // Close dropdowns on outside click
+        document.addEventListener('click', (e) => {
+          if (!compElements.searchWrapper.contains(e.target)) {
+            closeCompDropdown();
+          }
+          if (!genElements.searchWrapper.contains(e.target)) {
+            closeGenDropdown();
+          }
+        });
+
+        // --------------------------------------------------------------------
+        // View 4: Settings Events
+        // --------------------------------------------------------------------
+        settingsElements.catalogLoadBtn.addEventListener('click', () => {
+          settingsElements.catalogFileInput.value = '';
+          settingsElements.catalogFileInput.click();
+        });
+
+        settingsElements.catalogFileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            loadCatalogFromCSV(evt.target.result);
+          };
+          reader.readAsText(file);
+        });
+
+        settingsElements.catalogClearBtn.addEventListener('click', clearCatalog);
+
+        settingsElements.lastPriceLoadBtn.addEventListener('click', () => {
+          settingsElements.lastPriceFileInput.value = '';
+          settingsElements.lastPriceFileInput.click();
+        });
+
+        settingsElements.lastPriceFileInput.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            loadLastPriceFromCSV(evt.target.result);
+          };
+          reader.readAsText(file);
+        });
+
+        settingsElements.lastPriceClearBtn.addEventListener('click', clearLastPrices);
+
+        settingsElements.backupExportBtn.addEventListener('click', exportBackupJSON);
+
+        settingsElements.backupImportBtn.addEventListener('click', () => {
+          settingsElements.backupImportFile.value = '';
+          settingsElements.backupImportFile.click();
+        });
+
+        settingsElements.backupImportFile.addEventListener('change', (e) => {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            importBackupJSON(evt.target.result);
+          };
+          reader.readAsText(file);
+        });
+
+        settingsElements.loadDemoBtn.addEventListener('click', loadDemoData);
+      }
+
+      /* ======================================================================
+         10. APPLICATION BOOTSTRAP
+         ====================================================================== */
+      function initApp() {
+        // Apply saved theme
+        applyTheme(state.theme);
+
+        // Restore Buyer IDs
+        if (state.procBuyerId) {
+          procElements.buyerInput.value = state.procBuyerId;
+          procElements.buyerStatus.textContent = `✅ ${state.procBuyerId}`;
+          procElements.buyerStatus.classList.add('visible');
+        }
+        if (state.compBuyerId) {
+          compElements.buyerInput.value = state.compBuyerId;
+          compElements.buyerStatus.textContent = `✅ ${state.compBuyerId}`;
+          compElements.buyerStatus.classList.add('visible');
+        }
+        if (state.genBuyerId) {
+          genElements.buyerInput.value = state.genBuyerId;
+          genElements.buyerStatus.textContent = `✅ ${state.genBuyerId}`;
+          genElements.buyerStatus.classList.add('visible');
+        }
+
+        // Digital Clock Interval
+        updateDigitalClock();
+        setInterval(updateDigitalClock, 1000);
+
+        // Wire Event Listeners
+        initEventListeners();
+
+        // Render Initial Settings & Carts
+        updateSettingsCatalogView();
+        updateSettingsLastPriceView();
+        renderCompCart();
+        renderGenCart();
+
+        // Default to Procurement view
+        switchView('procurement');
+      }
+
+      // Start the app when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initApp);
+      } else {
+        initApp();
+      }
+
+    })();
+  </script>
+</body>
+</html>

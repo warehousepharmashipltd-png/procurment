@@ -1,0 +1,6 @@
+{
+  "name": "PharmaShip Procurement Suite",
+  "description": "Comprehensive pharmaceutical procurement and purchase order tool with bulk CSV export, catalog search, discount calculation, and price tracking.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
